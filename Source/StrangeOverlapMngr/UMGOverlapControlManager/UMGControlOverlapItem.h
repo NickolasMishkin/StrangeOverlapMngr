@@ -13,6 +13,8 @@ class STRANGEOVERLAPMNGR_API UUMGControlOverlapItem : public UObject
 
 public:
 
+	FVector2D PosForSort{ 0.0f,0.0f };
+
 	bool SetPositionInViewport(APlayerController* PlayerController, const FVector2D& Position);
 	void SetWorldLocation(const FVector& NewPosition);
 	FVector2D GetDesiredSize() const;

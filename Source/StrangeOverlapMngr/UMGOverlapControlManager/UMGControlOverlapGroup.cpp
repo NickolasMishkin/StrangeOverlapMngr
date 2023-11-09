@@ -7,6 +7,99 @@
 #include <Kismet/GameplayStatics.h>
 #include <Blueprint/WidgetLayoutLibrary.h>
 
+bool GetWidgetGeometry(const UWidgetComponent* WidgetComp, const APlayerController* PlayerController, FGeometry& OutGeometry)
+{
+    FVector2D Size = WidgetComp->GetDrawSize(); // You need to implement GetDesiredSize in your WidgetComponent
+    FVector2D Position;
+    if (PlayerController->ProjectWorldLocationToScreen(WidgetComp->GetComponentLocation(), Position))
+    {
+        OutGeometry = FGeometry::MakeRoot(Size, FSlateLayoutTransform(Position - (Size * 0.5f)));
+        return true;
+    }
+    return false;
+}
+
+bool WidgetsOverlap(const UWidgetComponent* WidgetA, const UWidgetComponent* WidgetB, const APlayerController* PlayerController)
+{
+    FGeometry GeometryA;
+    FGeometry GeometryB;
+    /*if ()
+    {*/
+    if (GetWidgetGeometry(WidgetA, PlayerController, GeometryA) && GetWidgetGeometry(WidgetB, PlayerController, GeometryB))
+    {
+        // Check if the two geometries overlap
+        FBox2D BoxA(GeometryA.AbsoluteToLocal(GeometryA.GetLocalSize()), GeometryA.GetLocalSize());
+        FBox2D BoxB(GeometryB.AbsoluteToLocal(GeometryB.GetLocalSize()), GeometryB.GetLocalSize());
+        return BoxA.Intersect(BoxB);
+    }
+    return false;
+}
+
+void AlignWidgetsInLine(const TArray<UWidgetComponent*>& Widgets, APlayerController* PlayerController)
+{
+    FVector2D AlignmentStart; // This would be determined based on your UI design
+    // Vertical alignment along the Y-axis
+    for (UWidgetComponent* WidgetComp : Widgets)
+    {
+        FVector NewLocation = WidgetComp->GetComponentLocation();
+        FVector2D NewScreenLocation;
+        PlayerController->ProjectWorldLocationToScreen(NewLocation, NewScreenLocation);
+        NewScreenLocation.Y = AlignmentStart.Y; // Adjust to the desired Y position
+
+        // Convert back to world space (this is a simplistic approach, see notes below)
+        FVector NewWorldLocation;
+        UGameplayStatics::DeprojectScreenToWorld(PlayerController, NewScreenLocation, NewWorldLocation, NewLocation);// : : DeprojectScreenToWorld(PlayerController, NewScreenLocation, NewWorldLocation, NewLocation);
+        WidgetComp->SetWorldLocation(NewWorldLocation);//->SetWorldLocation(NewWorldLocation);
+    }
+}
+
+void CheckAndAlignWidgets(TArray<UWidgetComponent*> WidgetComponents, APlayerController* PlayerController)
+{
+    if (!PlayerController)
+    {
+        return;
+    }
+
+    // Store the original positions
+    TMap<UWidgetComponent*, FVector> OriginalPositions;
+    for (UWidgetComponent* WidgetComp : WidgetComponents)
+    {
+        OriginalPositions.Add(WidgetComp, WidgetComp->GetComponentLocation());
+    }
+
+    // Check for any overlaps
+    bool bShouldAlign = false;
+    for (int32 i = 0; i < WidgetComponents.Num() - 1; ++i)
+    {
+        for (int32 j = i + 1; j < WidgetComponents.Num(); ++j)
+        {
+            if (WidgetsOverlap(WidgetComponents[i], WidgetComponents[j], PlayerController))
+            {
+                bShouldAlign = true;
+                break;
+            }
+        }
+        if (bShouldAlign)
+        {
+            break;
+        }
+    }
+
+    // Align widgets if there are overlaps, otherwise reset to original positions
+    if (bShouldAlign)
+    {
+        AlignWidgetsInLine(WidgetComponents, PlayerController);
+    }
+    else
+    {
+        for (UWidgetComponent* WidgetComp : WidgetComponents)
+        {
+            //WidgetComp->SetWorldLocation(OriginalPositions[WidgetComp]);
+        }
+    }
+}
+
+
 void UUMGControlOverlapGroup::Update()
 {
     if (!NeedUpdate())
@@ -14,28 +107,51 @@ void UUMGControlOverlapGroup::Update()
         return;
     }
 
-    struct Params
-    {
-        FVector2D ViewportPosition;
-        bool bInViewPort = false;
-    };
 
     TArray<FVector2D> ViewportPositions;
-
-    for (int32 i = 0; i < Items.Num(); i++)
+    TArray<UUMGControlOverlapItem*> ItemsForAllign;
+    for (auto it : Items)
     {
+        FVector2D Pos(0.0f,0.0f);
+        if (it->GetPositionInViewport(PlayerController, Pos))
+        {
+            ViewportPositions.Add(Pos);
+            ItemsForAllign.Add(it);
+            it->PosForSort = Pos;
+        }
     }
-    Items.Sort([&](const UUMGControlOverlapItem& ItemA, const UUMGControlOverlapItem& ItemB)
+    if (ItemsForAllign.Num() <= 1)
     {
-        FVector2D PosA, PosB;
-        ItemA.GetPositionInViewport(PlayerController, PosA);
-        ItemB.GetPositionInViewport(PlayerController, PosB);
-        return PosA.X < PosB.X;
+        return;
+    }
+    ItemsForAllign.Sort([&](const UUMGControlOverlapItem& ItemA, const UUMGControlOverlapItem& ItemB)
+    {
+        return ItemA.PosForSort.X < ItemB.PosForSort.X;
+
     });
     
-    for (int32 i = 0; i< Items.Num(); i++)
+    Items.Sort([&](const UUMGControlOverlapItem& ItemA, const UUMGControlOverlapItem& ItemB)
     {
-        UUMGControlOverlapItem* ItemA = Items[i];
+        FVector2D PosA, PosB = FVector2D::Zero();
+        if (ItemA.GetPositionInViewport(PlayerController, PosA))
+        {
+            if (ItemB.GetPositionInViewport(PlayerController, PosB))
+            {
+                return PosA.X < PosB.X;
+            }
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+        
+    });
+    
+    bool bShouldAlign = false;
+    for (int32 i = 0; i< ItemsForAllign.Num(); i++)
+    {
+        UUMGControlOverlapItem* ItemA = ItemsForAllign[i];
         if (!ItemA)
         {
             continue;
@@ -44,6 +160,7 @@ void UUMGControlOverlapGroup::Update()
         FVector2D ItemAScreenPos;;
         if (!ItemA->GetPositionInViewport(PlayerController, ItemAScreenPos))
         {
+            //ItemA->SetWorldLocation(ItemA->GetStartedPosition());
             /*ItemA->SetIsGrouping(false);
             ItemA->SetWorldLocation(ItemA->GetStartedPosition());
             GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));*/
@@ -53,9 +170,9 @@ void UUMGControlOverlapGroup::Update()
         float YPos = ItemAScreenPos.Y;
         FSlateRect ItemARect(ItemAScreenPos.X, ItemAScreenPos.Y, ItemAScreenPos.X + ItemASize.X, ItemAScreenPos.Y + ItemASize.Y);
         
-        for (int32 j = i + 1; j < Items.Num(); j++)
+        for (int32 j = i + 1; j < ItemsForAllign.Num(); j++)
         {
-            UUMGControlOverlapItem* ItemB = Items[j];
+            UUMGControlOverlapItem* ItemB = ItemsForAllign[j];
             if (!ItemB)
             {
                 continue;
@@ -67,6 +184,7 @@ void UUMGControlOverlapGroup::Update()
                 /*ItemB->SetWorldLocation(ItemB->GetStartedPosition());
                 ItemB->SetIsGrouping(false);
                 GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));*/
+                //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
                 continue;
             }
             FSlateRect ItemBRect(ItemBScreenPos.X, ItemBScreenPos.Y, ItemBScreenPos.X + ItemBSize.X, ItemBScreenPos.Y + ItemBSize.Y);
@@ -76,6 +194,7 @@ void UUMGControlOverlapGroup::Update()
             {
                /* ItemB->SetWorldLocation(ItemB->GetStartedPosition());
                 GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));*/
+                //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
                 continue;
             }
             
@@ -84,7 +203,7 @@ void UUMGControlOverlapGroup::Update()
             if (FSlateRect::DoRectanglesIntersect(ItemARect, ItemBRect))
             {
                
-                if (!FSlateRect::DoRectanglesIntersect(ItemARect, ItemBStartPosRect) && ItemB->IsGrouping())
+                if (!FSlateRect::DoRectanglesIntersect(ItemARect, ItemBStartPosRect))
                 {
                     ItemB->SetWorldLocation(ItemB->GetStartedPosition());
                     ItemB->SetIsGrouping(false);
@@ -96,21 +215,26 @@ void UUMGControlOverlapGroup::Update()
                     /*ItemB->SetWorldLocation(ItemB->GetStartedPosition());
                     ItemB->SetIsGrouping(false);
                     GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));*/
+                    //if (!FSlateRect::DoRectanglesIntersect(ItemARect, ItemBStartPosRect))
+                    //{
+                    //    ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+                    //    //ItemB->SetIsGrouping(false);
+                    //}
+                    //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+                    ItemB->SetWorldLocation(ItemB->GetStartedPosition());
                     continue;
                 }
-                ItemB->SetIsGrouping(true);
                  XOffset += ItemBSize.X;
                 GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("True"), true, FVector2D(1.0f, 1.0f));
             }
             else
             {
-                if (ItemB->IsGrouping())
+                //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+                //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+                if (!FSlateRect::DoRectanglesIntersect(ItemARect, ItemBStartPosRect))
                 {
-                    if (!FSlateRect::DoRectanglesIntersect(ItemARect, ItemBStartPosRect))
-                    {
-                        ItemB->SetWorldLocation(ItemB->GetStartedPosition());
-                        ItemB->SetIsGrouping(false);
-                    }
+                    ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+                    //ItemB->SetIsGrouping(false);
                 }
                 GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));
             }
