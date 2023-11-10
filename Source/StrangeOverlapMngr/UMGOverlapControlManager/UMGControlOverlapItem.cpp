@@ -47,6 +47,15 @@ bool UUMGControlOverlapItem::GetPositionInViewport(APlayerController* PlayerCont
     return UGameplayStatics::ProjectWorldToScreen(PlayerController, GetWorldLocation(), ViewPortPosition);
 }
 
+void UUMGControlOverlapItem::SetStartedLoaction()
+{
+    if (ControlledWidgetComponent)
+    {
+        ControlledWidgetComponent->SetWorldLocation(StartedWorldPosition);
+        GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("SetWorldLocation"), true, FVector2D(1.0f, 1.0f));
+    }
+}
+
 void UUMGControlOverlapItem::SetControlledWidgetComponent(UWidgetComponent* WidgetComponent)
 {
     ControlledWidgetComponent = WidgetComponent;

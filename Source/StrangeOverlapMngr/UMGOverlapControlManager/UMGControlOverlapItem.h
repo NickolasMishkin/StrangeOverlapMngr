@@ -19,6 +19,7 @@ public:
 	void SetWorldLocation(const FVector& NewPosition);
 	FVector2D GetDesiredSize() const;
 	bool GetPositionInViewport(APlayerController* PlayerController, FVector2D& ViewPortPosition) const;
+	void SetStartedLoaction();
 
 	FORCEINLINE void SetIndex(int32 NewIndex) { Index = NewIndex; }
 	void SetControlledWidgetComponent(UWidgetComponent* WidgetComponent);

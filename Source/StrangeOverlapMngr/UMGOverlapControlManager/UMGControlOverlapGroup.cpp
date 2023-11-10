@@ -119,6 +119,20 @@ void UUMGControlOverlapGroup::Update()
             ItemsForAllign.Add(it);
             it->PosForSort = Pos;
         }
+        else
+        {
+            //выглядит какхуйня, наверное придётся убрать 
+            it->SetStartedLoaction();
+            ViewportPositions.Add(Pos);
+            ItemsForAllign.Add(it);
+            it->PosForSort = Pos;
+            /*if (it->GetPositionInViewport(PlayerController, Pos))
+            {
+                ViewportPositions.Add(Pos);
+                ItemsForAllign.Add(it);
+                it->PosForSort = Pos;
+            }*/
+        }
     }
     if (ItemsForAllign.Num() <= 1)
     {
@@ -129,8 +143,97 @@ void UUMGControlOverlapGroup::Update()
         return ItemA.PosForSort.X < ItemB.PosForSort.X;
 
     });
+
+    ViewportPositions.Sort([&](const FVector2D& ItemA, const FVector2D& ItemB)
+    {
+        return ItemA.X < ItemB.X;
+
+    });
     
-    Items.Sort([&](const UUMGControlOverlapItem& ItemA, const UUMGControlOverlapItem& ItemB)
+    for (int32 i = 0; i < ViewportPositions.Num(); i++)
+    {
+        UUMGControlOverlapItem* ItemA = ItemsForAllign[i];
+        if (!ItemA)
+        {
+            continue;
+        }
+        FVector2D ItemASize = ItemA->GetDesiredSize();
+        FVector2D ItemAScreenPos = ViewportPositions[i];
+        float XOffset = ItemAScreenPos.X + ItemASize.X;
+        float YPos = ItemAScreenPos.Y;
+        FSlateRect ItemARect(ItemAScreenPos.X, ItemAScreenPos.Y, ItemAScreenPos.X + ItemASize.X, ItemAScreenPos.Y + ItemASize.Y);
+
+        for (int32 j = i + 1; j < ViewportPositions.Num(); j++)
+        {
+            UUMGControlOverlapItem* ItemB = ItemsForAllign[j];
+            if (!ItemB)
+            {
+                continue;
+            }
+            FVector2D ItemBSize = ItemB->GetDesiredSize();
+            FVector2D ItemBScreenPos = ViewportPositions[j];
+            FSlateRect ItemBRect(ItemBScreenPos.X, ItemBScreenPos.Y, ItemBScreenPos.X + ItemBSize.X, ItemBScreenPos.Y + ItemBSize.Y);
+
+            if (FSlateRect::DoRectanglesIntersect(ItemARect, ItemBRect))
+            {
+
+                FVector2D ItemBStartScreenPos;
+                if (UGameplayStatics::ProjectWorldToScreen(PlayerController, ItemB->GetStartedPosition(), ItemBStartScreenPos))
+                {
+                    FSlateRect ItemBStartPosRect(ItemBStartScreenPos.X, ItemBStartScreenPos.Y, ItemBStartScreenPos.X + ItemBSize.X, ItemBStartScreenPos.Y + ItemBSize.Y);
+                    if (!FSlateRect::DoRectanglesIntersect(ItemARect, ItemBStartPosRect))
+                    {
+                        ItemB->SetStartedLoaction();
+                        ViewportPositions[j] = ItemBStartScreenPos;
+                        continue;
+                    }
+                }
+
+                FVector2D NewViewPortPosition = FVector2D(ItemAScreenPos.X + ItemASize.X /*- ItemBSize.X / 2.0f*/, YPos);
+                if (ItemB->SetPositionInViewport(PlayerController, NewViewPortPosition))
+                {
+                    ViewportPositions[j] = NewViewPortPosition;
+                    continue;
+                }
+                else
+                {
+                    //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+                }
+                XOffset += ItemBSize.X;
+                //GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("True"), true, FVector2D(1.0f, 1.0f));
+            }
+            else
+            {
+                FVector2D ItemBStartScreenPos;
+                if (UGameplayStatics::ProjectWorldToScreen(PlayerController, ItemB->GetStartedPosition(), ItemBStartScreenPos))
+                {
+                    if (ItemBStartScreenPos.Y > 1200 || ItemBStartScreenPos.Y < 0 || ItemBStartScreenPos.X>1920 || ItemBStartScreenPos.Y < 0)
+                    {
+                        ItemB->SetStartedLoaction();
+                        ViewportPositions[j] = ItemBStartScreenPos;
+                        continue;
+                    }
+                    FSlateRect ItemBStartPosRect(ItemBStartScreenPos.X, ItemBStartScreenPos.Y, ItemBStartScreenPos.X + ItemBSize.X, ItemBStartScreenPos.Y + ItemBSize.Y);
+                    if (!FSlateRect::DoRectanglesIntersect(ItemARect, ItemBStartPosRect))
+                    {
+                        ItemB->SetStartedLoaction();
+                        ViewportPositions[j] = ItemBStartScreenPos;
+                        continue;
+                    }
+                }
+                else
+                {
+                    ItemB->SetStartedLoaction();
+                    ViewportPositions[j] = ItemBStartScreenPos;
+                    continue;
+                }
+
+                //GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));
+            }
+        }
+    }
+
+    /*Items.Sort([&](const UUMGControlOverlapItem& ItemA, const UUMGControlOverlapItem& ItemB)
     {
         FVector2D PosA, PosB = FVector2D::Zero();
         if (ItemA.GetPositionInViewport(PlayerController, PosA))
@@ -146,100 +249,108 @@ void UUMGControlOverlapGroup::Update()
             return false;
         }
         
-    });
+    });*/
     
-    bool bShouldAlign = false;
-    for (int32 i = 0; i< ItemsForAllign.Num(); i++)
-    {
-        UUMGControlOverlapItem* ItemA = ItemsForAllign[i];
-        if (!ItemA)
-        {
-            continue;
-        }
-        FVector2D ItemASize = ItemA->GetDesiredSize();
-        FVector2D ItemAScreenPos;;
-        if (!ItemA->GetPositionInViewport(PlayerController, ItemAScreenPos))
-        {
-            //ItemA->SetWorldLocation(ItemA->GetStartedPosition());
-            /*ItemA->SetIsGrouping(false);
-            ItemA->SetWorldLocation(ItemA->GetStartedPosition());
-            GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));*/
-            continue;
-        }
-        float XOffset = ItemAScreenPos.X + ItemASize.X;
-        float YPos = ItemAScreenPos.Y;
-        FSlateRect ItemARect(ItemAScreenPos.X, ItemAScreenPos.Y, ItemAScreenPos.X + ItemASize.X, ItemAScreenPos.Y + ItemASize.Y);
-        
-        for (int32 j = i + 1; j < ItemsForAllign.Num(); j++)
-        {
-            UUMGControlOverlapItem* ItemB = ItemsForAllign[j];
-            if (!ItemB)
-            {
-                continue;
-            }
-            FVector2D ItemBSize = ItemB->GetDesiredSize();
-            FVector2D ItemBScreenPos;
-            if (!ItemB->GetPositionInViewport(PlayerController, ItemBScreenPos))
-            {
-                /*ItemB->SetWorldLocation(ItemB->GetStartedPosition());
-                ItemB->SetIsGrouping(false);
-                GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));*/
-                //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
-                continue;
-            }
-            FSlateRect ItemBRect(ItemBScreenPos.X, ItemBScreenPos.Y, ItemBScreenPos.X + ItemBSize.X, ItemBScreenPos.Y + ItemBSize.Y);
 
-            FVector2D ItemBStartScreenPos;
-            if (!UGameplayStatics::ProjectWorldToScreen(PlayerController, ItemB->GetStartedPosition(), ItemBStartScreenPos))
-            {
-               /* ItemB->SetWorldLocation(ItemB->GetStartedPosition());
-                GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));*/
-                //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
-                continue;
-            }
-            
-            FSlateRect ItemBStartPosRect(ItemBStartScreenPos.X, ItemBStartScreenPos.Y, ItemBStartScreenPos.X + ItemBSize.X, ItemBStartScreenPos.Y + ItemBSize.Y);
+    //for (int32 i = 0; i< ItemsForAllign.Num(); i++)
+    //{
+    //    UUMGControlOverlapItem* ItemA = ItemsForAllign[i];
+    //    if (!ItemA)
+    //    {
+    //        continue;
+    //    }
+    //    FVector2D ItemASize = ItemA->GetDesiredSize();
+    //    FVector2D ItemAScreenPos;;
+    //    if (!ItemA->GetPositionInViewport(PlayerController, ItemAScreenPos))
+    //    {
+    //        //ItemA->SetWorldLocation(ItemA->GetStartedPosition());
+    //        /*ItemA->SetIsGrouping(false);
+    //        ItemA->SetWorldLocation(ItemA->GetStartedPosition());
+    //        GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));*/
+    //        continue;
+    //    }
+    //    float XOffset = ItemAScreenPos.X + ItemASize.X;
+    //    float YPos = ItemAScreenPos.Y;
+    //    FSlateRect ItemARect(ItemAScreenPos.X, ItemAScreenPos.Y, ItemAScreenPos.X + ItemASize.X, ItemAScreenPos.Y + ItemASize.Y);
+    //    
+    //    for (int32 j = i + 1; j < ItemsForAllign.Num(); j++)
+    //    {
+    //        UUMGControlOverlapItem* ItemB = ItemsForAllign[j];
+    //        if (!ItemB)
+    //        {
+    //            continue;
+    //        }
+    //        FVector2D ItemBSize = ItemB->GetDesiredSize();
+    //        FVector2D ItemBScreenPos;
+    //        if (!ItemB->GetPositionInViewport(PlayerController, ItemBScreenPos))
+    //        {
+    //            /*ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+    //            ItemB->SetIsGrouping(false);
+    //            GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));*/
+    //            //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+    //            continue;
+    //        }
+    //        FSlateRect ItemBRect(ItemBScreenPos.X, ItemBScreenPos.Y, ItemBScreenPos.X + ItemBSize.X, ItemBScreenPos.Y + ItemBSize.Y);
 
-            if (FSlateRect::DoRectanglesIntersect(ItemARect, ItemBRect))
-            {
-               
-                if (!FSlateRect::DoRectanglesIntersect(ItemARect, ItemBStartPosRect))
-                {
-                    ItemB->SetWorldLocation(ItemB->GetStartedPosition());
-                    ItemB->SetIsGrouping(false);
-                }
-                
-                FVector2D NewViewPortPosition = FVector2D(ItemAScreenPos.X + ItemASize.X, YPos);
-                if (!ItemB->SetPositionInViewport(PlayerController, NewViewPortPosition))
-                {
-                    /*ItemB->SetWorldLocation(ItemB->GetStartedPosition());
-                    ItemB->SetIsGrouping(false);
-                    GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));*/
-                    //if (!FSlateRect::DoRectanglesIntersect(ItemARect, ItemBStartPosRect))
-                    //{
-                    //    ItemB->SetWorldLocation(ItemB->GetStartedPosition());
-                    //    //ItemB->SetIsGrouping(false);
-                    //}
-                    //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
-                    ItemB->SetWorldLocation(ItemB->GetStartedPosition());
-                    continue;
-                }
-                 XOffset += ItemBSize.X;
-                GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("True"), true, FVector2D(1.0f, 1.0f));
-            }
-            else
-            {
-                //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
-                //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
-                if (!FSlateRect::DoRectanglesIntersect(ItemARect, ItemBStartPosRect))
-                {
-                    ItemB->SetWorldLocation(ItemB->GetStartedPosition());
-                    //ItemB->SetIsGrouping(false);
-                }
-                GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));
-            }
-        }
-    }
+    //        FVector2D ItemBStartScreenPos;
+    //        if (!UGameplayStatics::ProjectWorldToScreen(PlayerController, ItemB->GetStartedPosition(), ItemBStartScreenPos))
+    //        {
+    //           /* ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+    //            GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));*/
+    //            //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+    //            continue;
+    //        }
+    //        
+    //        FSlateRect ItemBStartPosRect(ItemBStartScreenPos.X, ItemBStartScreenPos.Y, ItemBStartScreenPos.X + ItemBSize.X, ItemBStartScreenPos.Y + ItemBSize.Y);
+
+    //        if (FSlateRect::DoRectanglesIntersect(ItemARect, ItemBRect))
+    //        {
+    //           
+    //            if (!FSlateRect::DoRectanglesIntersect(ItemARect, ItemBStartPosRect))
+    //            {
+    //                ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+    //                ItemB->SetIsGrouping(false);
+    //            }
+    //            
+    //            FVector2D NewViewPortPosition = FVector2D(ItemAScreenPos.X + ItemASize.X /*- ItemBSize.X / 2.0f*/, YPos);
+    //            if (!ItemB->SetPositionInViewport(PlayerController, NewViewPortPosition))
+    //            {
+    //                /*ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+    //                ItemB->SetIsGrouping(false);
+    //                GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));*/
+    //                //if (!FSlateRect::DoRectanglesIntersect(ItemARect, ItemBStartPosRect))
+    //                //{
+    //                //    ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+    //                //    //ItemB->SetIsGrouping(false);
+    //                //}
+    //                //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+    //                //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+    //                continue;
+    //            }
+    //             XOffset += ItemBSize.X;
+    //            GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("True"), true, FVector2D(1.0f, 1.0f));
+    //        }
+    //        else
+    //        {
+    //            //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+    //            //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+    //            if (!FSlateRect::DoRectanglesIntersect(ItemARect, ItemBStartPosRect))
+    //            {
+    //                ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+    //                //ItemB->SetIsGrouping(false);
+    //            }
+    //            else
+    //            {
+    //                FVector2D NewViewPortPosition = FVector2D(ItemAScreenPos.X + ItemASize.X - ItemBSize.X/2.0f , YPos);
+    //                if (!ItemB->SetPositionInViewport(PlayerController, NewViewPortPosition))
+    //                {
+    //                    //ItemB->SetWorldLocation(ItemB->GetStartedPosition());
+    //                }
+    //            }
+    //            GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("False"), true, FVector2D(1.0f, 1.0f));
+    //        }
+    //    }
+    //}
 }
 
 bool UUMGControlOverlapGroup::AddWidgetComponents(TArray<UWidgetComponent*>& WidgetComponents)

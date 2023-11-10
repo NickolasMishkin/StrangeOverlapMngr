@@ -61,6 +61,8 @@ public:
 	FORCEINLINE void SetControlOverlapType(EControlOverlapType NewControlOverlapType) { ControlOverlapType = NewControlOverlapType; }
 private:
 
+	int32 chance = 0;
+
 	UPROPERTY()
 	TMap<FString, UUMGControlOverlapGroup*> GroupByTag;
 
