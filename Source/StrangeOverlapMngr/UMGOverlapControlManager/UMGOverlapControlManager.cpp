@@ -49,3 +49,30 @@ bool UUMGOverlapControlManager::CreateControlOverlapGroup(TArray<UWidgetComponen
     GroupsByControlOverlapType.Add(ControlOverlapType, NewGroupsContainer);
     return NewGroupsContainer->CreateGroup(WidgetComponents, GroupTagId, GroupSettings);
 }
+
+bool UUMGOverlapControlManager::AddWidgetComponentToControlOverlapGroup(UWidgetComponent* WidgetComponent, EControlOverlapType ControlOverlapType, const FString& GroupTagId)
+{
+    if (WidgetComponent && ControlOverlapType != EControlOverlapType::None && !GroupTagId.IsEmpty() && GroupsByControlOverlapType.Contains(ControlOverlapType))
+    {
+        if (auto GroupsContainer = *GroupsByControlOverlapType.Find(ControlOverlapType))
+        {
+            return GroupsContainer->AddWidgetComponentToGroup(WidgetComponent, GroupTagId);
+        }
+    }
+    return false;
+}
+
+bool UUMGOverlapControlManager::RemoveWidgetComponentFromControlOverlapGroup(UWidgetComponent* WidgetComponent, EControlOverlapType ControlOverlapType, const FString& GroupTagId)
+{
+    if (WidgetComponent && ControlOverlapType != EControlOverlapType::None && !GroupTagId.IsEmpty())
+    {
+        if (GroupsByControlOverlapType.Contains(ControlOverlapType))
+        {
+            if (auto GroupsContainer = *GroupsByControlOverlapType.Find(ControlOverlapType))
+            {
+                return GroupsContainer->RemoveWidgetComponentFromGroup(WidgetComponent, GroupTagId);
+            }
+        }
+    }
+    return false;
+}

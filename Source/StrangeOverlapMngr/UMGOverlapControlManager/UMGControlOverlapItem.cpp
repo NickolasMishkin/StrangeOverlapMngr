@@ -75,3 +75,15 @@ FVector UUMGControlOverlapItem::GetWorldLocation() const
     }
     return FVector();
 }
+
+void UUMGControlOverlapItem::Update(int32 NewIndex)
+{
+    if (Index != NewIndex)
+    {
+        Index = NewIndex;
+        if (ControlledWidgetComponent->GetWidget()->GetClass()->ImplementsInterface(UUMGOverlapWidgetInterface::StaticClass()))
+        {
+            IUMGOverlapWidgetInterface::Execute_TestFunc(ControlledWidgetComponent->GetWidget());
+        }
+    }
+}

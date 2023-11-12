@@ -33,6 +33,8 @@ public:
 	FORCEINLINE void SetIsGrouping(bool NewbIsGrouping) { bIsGrouping = NewbIsGrouping; };
 	FORCEINLINE FVector GetStartedPosition() const { return StartedWorldPosition; }
 
+	void Update(int32 NewIndex);
+
 private:
 
 	int32 Index = -1;

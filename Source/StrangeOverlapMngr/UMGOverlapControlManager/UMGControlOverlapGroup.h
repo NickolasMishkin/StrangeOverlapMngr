@@ -16,19 +16,27 @@ class STRANGEOVERLAPMNGR_API UUMGControlOverlapGroup : public UObject
 
 public:
 
-	virtual void Update();
+	void Update();
 
 	bool AddWidgetComponents(TArray<UWidgetComponent*>& WidgetComponents);
 	bool AddWidgetComponent(UWidgetComponent* WidgetComponent);
+	bool RemoveWidgetComponent(UWidgetComponent* WidgetComponent);
+	bool Destroy();
 
 	FORCEINLINE int32 GetItemsCount() const { return Items.Num(); }
 	void Init(EControlOverlapType NewControlOverlapType, const FUMGOverlapControlGroupSettings& InSettings);
 
 protected:
 
-	virtual bool NeedUpdate() const;
+	bool NeedUpdate() const;
 
 private:
+
+	UUMGControlOverlapItem* GetItemByWidgetComponent(UWidgetComponent* WidgetComponent) const;
+
+	bool GetAndPrepareItemsForAllign(TArray<UUMGControlOverlapItem*>& ItemsToAllign, TArray<FVector2D>& Positions);
+
+	FVector2D ViewPortSize{ 0.0f,0.0f };
 
 	UPROPERTY()
 	EControlOverlapType ControlOverlapType;
@@ -57,11 +65,11 @@ public:
 
 	bool RemoveGroup(const FString& TagId);
 	bool CreateGroup(TArray<UWidgetComponent*>& WidgetCompoennts, const FString& TagId, const FUMGOverlapControlGroupSettings& Settings);
+	bool AddWidgetComponentToGroup(UWidgetComponent* WidgetComponent, const FString& TagId);
+	bool RemoveWidgetComponentFromGroup(UWidgetComponent* WidgetComponent, const FString& TagId);
 
 	FORCEINLINE void SetControlOverlapType(EControlOverlapType NewControlOverlapType) { ControlOverlapType = NewControlOverlapType; }
 private:
-
-	int32 chance = 0;
 
 	UPROPERTY()
 	TMap<FString, UUMGControlOverlapGroup*> GroupByTag;

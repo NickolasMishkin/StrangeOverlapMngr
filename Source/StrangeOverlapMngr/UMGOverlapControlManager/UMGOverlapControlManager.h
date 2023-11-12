@@ -57,6 +57,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool CreateControlOverlapGroup(TArray<UWidgetComponent*> WidgetComponents, EControlOverlapType ControlOverlapType, const FString& GroupTagId, const FUMGOverlapControlGroupSettings& GroupSettings);
 
+	UFUNCTION(BlueprintCallable)
+	bool AddWidgetComponentToControlOverlapGroup(UWidgetComponent* WidgetComponent, EControlOverlapType ControlOverlapType, const FString& GroupTagId);
+
+	UFUNCTION(BlueprintCallable)
+	bool RemoveWidgetComponentFromControlOverlapGroup(UWidgetComponent* WidgetComponent, EControlOverlapType ControlOverlapType, const FString& GroupTagId);
+
 protected:
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
