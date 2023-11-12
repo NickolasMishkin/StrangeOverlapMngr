@@ -22,8 +22,6 @@ public:
 	bool AddWidgetComponent(UWidgetComponent* WidgetComponent);
 	bool RemoveWidgetComponent(UWidgetComponent* WidgetComponent);
 	bool Destroy();
-
-	FORCEINLINE int32 GetItemsCount() const { return Items.Num(); }
 	void Init(EControlOverlapType NewControlOverlapType, const FUMGOverlapControlGroupSettings& InSettings);
 
 protected:
@@ -36,19 +34,19 @@ private:
 
 	bool GetAndPrepareItemsForAllign(TArray<UUMGControlOverlapItem*>& ItemsToAllign, TArray<FVector2D>& Positions);
 
-	FVector2D ViewPortSize{ 0.0f,0.0f };
+	FVector2D m_ViewPortSize{ 0.0f,0.0f };
 
 	UPROPERTY()
-	EControlOverlapType ControlOverlapType;
+	EControlOverlapType m_ControlOverlapType;
 
 	UPROPERTY()
-	TArray<UUMGControlOverlapItem*> Items;
+	TArray<UUMGControlOverlapItem*> m_Items;
 
 	UPROPERTY()
-	int32 MaxItemsCount = 5;
+	int32 m_MaxItemsCount = 5;
 
 	UPROPERTY()
-	APlayerController* PlayerController = nullptr;
+	APlayerController* m_PlayerController = nullptr;
 
 	bool ItemsItersect(UUMGControlOverlapItem* ItemA, UUMGControlOverlapItem* ItemB) const;
 };
@@ -68,13 +66,13 @@ public:
 	bool AddWidgetComponentToGroup(UWidgetComponent* WidgetComponent, const FString& TagId);
 	bool RemoveWidgetComponentFromGroup(UWidgetComponent* WidgetComponent, const FString& TagId);
 
-	FORCEINLINE void SetControlOverlapType(EControlOverlapType NewControlOverlapType) { ControlOverlapType = NewControlOverlapType; }
+	FORCEINLINE void SetControlOverlapType(EControlOverlapType NewControlOverlapType) { m_ControlOverlapType = NewControlOverlapType; }
 private:
 
 	UPROPERTY()
-	TMap<FString, UUMGControlOverlapGroup*> GroupByTag;
+	TMap<FString, UUMGControlOverlapGroup*> m_GroupByTag;
 
 	UPROPERTY()
-	EControlOverlapType ControlOverlapType;
+	EControlOverlapType m_ControlOverlapType = EControlOverlapType::None;
 
 };

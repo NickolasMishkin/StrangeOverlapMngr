@@ -41,8 +41,8 @@ class STRANGEOVERLAPMNGR_API IUMGOverlapWidgetInterface
 
 public:
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	bool TestFunc();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Strange Components")
+	bool UpdateIndexInGroup(int32 NewIndex);
 };
 
 UCLASS(BlueprintType)
@@ -51,16 +51,16 @@ class STRANGEOVERLAPMNGR_API UUMGOverlapControlManager : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Strange Components")
 	bool RemoveControlOverlapGroup(EControlOverlapType ControlOverlapType, const FString& GroupTagId);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Strange Components")
 	bool CreateControlOverlapGroup(TArray<UWidgetComponent*> WidgetComponents, EControlOverlapType ControlOverlapType, const FString& GroupTagId, const FUMGOverlapControlGroupSettings& GroupSettings);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Strange Components")
 	bool AddWidgetComponentToControlOverlapGroup(UWidgetComponent* WidgetComponent, EControlOverlapType ControlOverlapType, const FString& GroupTagId);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Strange Components")
 	bool RemoveWidgetComponentFromControlOverlapGroup(UWidgetComponent* WidgetComponent, EControlOverlapType ControlOverlapType, const FString& GroupTagId);
 
 protected:
@@ -70,5 +70,5 @@ protected:
 private:
 
 	UPROPERTY()
-	TMap<EControlOverlapType, UUMGControlOverlapGroupContainer*> GroupsByControlOverlapType;
+	TMap<EControlOverlapType, UUMGControlOverlapGroupContainer*> m_GroupsByControlOverlapType;
 };

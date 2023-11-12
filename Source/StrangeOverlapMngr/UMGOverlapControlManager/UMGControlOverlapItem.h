@@ -21,28 +21,28 @@ public:
 	bool GetPositionInViewport(APlayerController* PlayerController, FVector2D& ViewPortPosition) const;
 	void SetStartedLoaction();
 
-	FORCEINLINE void SetIndex(int32 NewIndex) { Index = NewIndex; }
+	FORCEINLINE void SetIndex(int32 NewIndex) { m_Index = NewIndex; }
 	void SetControlledWidgetComponent(UWidgetComponent* WidgetComponent);
 	void Destroy();
 
-	FORCEINLINE UWidgetComponent* GetWidgetComponent() const { return ControlledWidgetComponent; }
+	FORCEINLINE UWidgetComponent* GetWidgetComponent() const { return m_ControlledWidgetComponent; }
 
 	FVector GetWorldLocation() const;
 
 	FORCEINLINE bool IsGrouping() const { return bIsGrouping; }
 	FORCEINLINE void SetIsGrouping(bool NewbIsGrouping) { bIsGrouping = NewbIsGrouping; };
-	FORCEINLINE FVector GetStartedPosition() const { return StartedWorldPosition; }
+	FORCEINLINE FVector GetStartedPosition() const { return m_StartedWorldPosition; }
 
 	void Update(int32 NewIndex);
 
 private:
 
-	int32 Index = -1;
+	int32 m_Index = -1;
 
 	bool bIsGrouping = false;
 
 	UPROPERTY()
-	UWidgetComponent* ControlledWidgetComponent = nullptr;
+	UWidgetComponent* m_ControlledWidgetComponent = nullptr;
 
-	FVector StartedWorldPosition;
+	FVector m_StartedWorldPosition{0.0f,0.0f,0.0f};
 };

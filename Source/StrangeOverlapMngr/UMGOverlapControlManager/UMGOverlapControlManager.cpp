@@ -9,11 +9,11 @@ bool UUMGOverlapControlManager::RemoveControlOverlapGroup(EControlOverlapType Co
 {
     if (ControlOverlapType != EControlOverlapType::None && !GroupTagId.IsEmpty())
     {
-        if (GroupsByControlOverlapType.Contains(ControlOverlapType))
+        if (m_GroupsByControlOverlapType.Contains(ControlOverlapType))
         {
-            if (auto GroupsContainer = *GroupsByControlOverlapType.Find(ControlOverlapType))
+            if (auto LGroupsContainer = *m_GroupsByControlOverlapType.Find(ControlOverlapType))
             {
-                return GroupsContainer->RemoveGroup(GroupTagId);
+                return LGroupsContainer->RemoveGroup(GroupTagId);
             }
         }
     }
@@ -23,7 +23,7 @@ bool UUMGOverlapControlManager::RemoveControlOverlapGroup(EControlOverlapType Co
 void UUMGOverlapControlManager::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
     Super::NativeTick(MyGeometry, InDeltaTime);
-    for (const auto& It : GroupsByControlOverlapType)
+    for (const auto& It : m_GroupsByControlOverlapType)
     {
         It.Value->Update();
     }
@@ -36,27 +36,27 @@ bool UUMGOverlapControlManager::CreateControlOverlapGroup(TArray<UWidgetComponen
         return false;
     }
 
-    if (GroupsByControlOverlapType.Contains(ControlOverlapType))
+    if (m_GroupsByControlOverlapType.Contains(ControlOverlapType))
     {
-        if (auto GroupsContainer = *GroupsByControlOverlapType.Find(ControlOverlapType))
+        if (auto LGroupsContainer = *m_GroupsByControlOverlapType.Find(ControlOverlapType))
         {
-            return GroupsContainer->CreateGroup(WidgetComponents, GroupTagId, GroupSettings);
+            return LGroupsContainer->CreateGroup(WidgetComponents, GroupTagId, GroupSettings);
         }
     }
 
-    auto NewGroupsContainer = NewObject<UUMGControlOverlapGroupContainer>(this, UUMGControlOverlapGroupContainer::StaticClass());
-    NewGroupsContainer->SetControlOverlapType(ControlOverlapType);
-    GroupsByControlOverlapType.Add(ControlOverlapType, NewGroupsContainer);
-    return NewGroupsContainer->CreateGroup(WidgetComponents, GroupTagId, GroupSettings);
+    auto LNewGroupsContainer = NewObject<UUMGControlOverlapGroupContainer>(this, UUMGControlOverlapGroupContainer::StaticClass());
+    LNewGroupsContainer->SetControlOverlapType(ControlOverlapType);
+    m_GroupsByControlOverlapType.Add(ControlOverlapType, LNewGroupsContainer);
+    return LNewGroupsContainer->CreateGroup(WidgetComponents, GroupTagId, GroupSettings);
 }
 
 bool UUMGOverlapControlManager::AddWidgetComponentToControlOverlapGroup(UWidgetComponent* WidgetComponent, EControlOverlapType ControlOverlapType, const FString& GroupTagId)
 {
-    if (WidgetComponent && ControlOverlapType != EControlOverlapType::None && !GroupTagId.IsEmpty() && GroupsByControlOverlapType.Contains(ControlOverlapType))
+    if (WidgetComponent && ControlOverlapType != EControlOverlapType::None && !GroupTagId.IsEmpty() && m_GroupsByControlOverlapType.Contains(ControlOverlapType))
     {
-        if (auto GroupsContainer = *GroupsByControlOverlapType.Find(ControlOverlapType))
+        if (auto LGroupsContainer = *m_GroupsByControlOverlapType.Find(ControlOverlapType))
         {
-            return GroupsContainer->AddWidgetComponentToGroup(WidgetComponent, GroupTagId);
+            return LGroupsContainer->AddWidgetComponentToGroup(WidgetComponent, GroupTagId);
         }
     }
     return false;
@@ -66,11 +66,11 @@ bool UUMGOverlapControlManager::RemoveWidgetComponentFromControlOverlapGroup(UWi
 {
     if (WidgetComponent && ControlOverlapType != EControlOverlapType::None && !GroupTagId.IsEmpty())
     {
-        if (GroupsByControlOverlapType.Contains(ControlOverlapType))
+        if (m_GroupsByControlOverlapType.Contains(ControlOverlapType))
         {
-            if (auto GroupsContainer = *GroupsByControlOverlapType.Find(ControlOverlapType))
+            if (auto LGroupsContainer = *m_GroupsByControlOverlapType.Find(ControlOverlapType))
             {
-                return GroupsContainer->RemoveWidgetComponentFromGroup(WidgetComponent, GroupTagId);
+                return LGroupsContainer->RemoveWidgetComponentFromGroup(WidgetComponent, GroupTagId);
             }
         }
     }

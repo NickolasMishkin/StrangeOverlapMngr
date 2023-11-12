@@ -27,17 +27,17 @@ bool UUMGControlOverlapItem::SetPositionInViewport(APlayerController* PlayerCont
 
 void UUMGControlOverlapItem::SetWorldLocation(const FVector& NewPosition)
 {
-    if (ControlledWidgetComponent)
+    if (m_ControlledWidgetComponent)
     {
-        ControlledWidgetComponent->SetWorldLocation(NewPosition);
+        m_ControlledWidgetComponent->SetWorldLocation(NewPosition);
     }
 }
 
 FVector2D UUMGControlOverlapItem::GetDesiredSize() const
 {
-    if (ControlledWidgetComponent)
+    if (m_ControlledWidgetComponent)
     {
-        return ControlledWidgetComponent->GetDrawSize();
+        return m_ControlledWidgetComponent->GetDrawSize();
     }
     return FVector2D();
 }
@@ -49,17 +49,17 @@ bool UUMGControlOverlapItem::GetPositionInViewport(APlayerController* PlayerCont
 
 void UUMGControlOverlapItem::SetStartedLoaction()
 {
-    if (ControlledWidgetComponent)
+    if (m_ControlledWidgetComponent)
     {
-        ControlledWidgetComponent->SetWorldLocation(StartedWorldPosition);
+        m_ControlledWidgetComponent->SetWorldLocation(m_StartedWorldPosition);
         GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("SetWorldLocation"), true, FVector2D(1.0f, 1.0f));
     }
 }
 
 void UUMGControlOverlapItem::SetControlledWidgetComponent(UWidgetComponent* WidgetComponent)
 {
-    ControlledWidgetComponent = WidgetComponent;
-    StartedWorldPosition = GetWorldLocation();
+    m_ControlledWidgetComponent = WidgetComponent;
+    m_StartedWorldPosition = GetWorldLocation();
 }
 
 void UUMGControlOverlapItem::Destroy()
@@ -69,21 +69,21 @@ void UUMGControlOverlapItem::Destroy()
 
 FVector UUMGControlOverlapItem::GetWorldLocation() const
 {
-    if (ControlledWidgetComponent)
+    if (m_ControlledWidgetComponent)
     {
-        return ControlledWidgetComponent->GetComponentLocation();
+        return m_ControlledWidgetComponent->GetComponentLocation();
     }
     return FVector();
 }
 
 void UUMGControlOverlapItem::Update(int32 NewIndex)
 {
-    if (Index != NewIndex)
+    if (m_Index != NewIndex)
     {
-        Index = NewIndex;
-        if (ControlledWidgetComponent->GetWidget()->GetClass()->ImplementsInterface(UUMGOverlapWidgetInterface::StaticClass()))
+        m_Index = NewIndex;
+        if (m_ControlledWidgetComponent->GetWidget()->GetClass()->ImplementsInterface(UUMGOverlapWidgetInterface::StaticClass()))
         {
-            IUMGOverlapWidgetInterface::Execute_TestFunc(ControlledWidgetComponent->GetWidget());
+            IUMGOverlapWidgetInterface::Execute_UpdateIndexInGroup(m_ControlledWidgetComponent->GetWidget(), m_Index);
         }
     }
 }
