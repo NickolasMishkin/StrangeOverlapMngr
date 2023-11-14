@@ -29,8 +29,8 @@ public:
 
 	FVector GetWorldLocation() const;
 
-	FORCEINLINE bool IsGrouping() const { return bIsGrouping; }
-	FORCEINLINE void SetIsGrouping(bool NewbIsGrouping) { bIsGrouping = NewbIsGrouping; };
+	FORCEINLINE bool IsGrouping() const { return m_bIsGrouping; }
+	FORCEINLINE void SetIsGrouping(bool NewbIsGrouping) { m_bIsGrouping = NewbIsGrouping; };
 	FORCEINLINE FVector GetStartedPosition() const { return m_StartedWorldPosition; }
 
 	void Update(int32 NewIndex);
@@ -39,7 +39,7 @@ private:
 
 	int32 m_Index = -1;
 
-	bool bIsGrouping = false;
+	bool m_bIsGrouping = false;
 
 	UPROPERTY()
 	UWidgetComponent* m_ControlledWidgetComponent = nullptr;

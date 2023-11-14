@@ -10,10 +10,10 @@ bool UUMGControlOverlapItem::SetPositionInViewport(APlayerController* PlayerCont
 {
     if (PlayerController)
     {
-        FVector NewWorldPosition, WorldDirection;
-        if (PlayerController->DeprojectScreenPositionToWorld(Position.X, Position.Y, NewWorldPosition, WorldDirection))
+        FVector lNewWorldPosition, lWorldDirection;
+        if (PlayerController->DeprojectScreenPositionToWorld(Position.X, Position.Y, lNewWorldPosition, lWorldDirection))
         {
-            SetWorldLocation(NewWorldPosition);
+            SetWorldLocation(lNewWorldPosition);
             return true;
         }
         else

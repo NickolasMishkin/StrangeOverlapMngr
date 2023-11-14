@@ -11,9 +11,9 @@ bool UUMGOverlapControlManager::RemoveControlOverlapGroup(EControlOverlapType Co
     {
         if (m_GroupsByControlOverlapType.Contains(ControlOverlapType))
         {
-            if (auto LGroupsContainer = *m_GroupsByControlOverlapType.Find(ControlOverlapType))
+            if (auto lGroupsContainer = *m_GroupsByControlOverlapType.Find(ControlOverlapType))
             {
-                return LGroupsContainer->RemoveGroup(GroupTagId);
+                return lGroupsContainer->RemoveGroup(GroupTagId);
             }
         }
     }
@@ -38,9 +38,9 @@ bool UUMGOverlapControlManager::CreateControlOverlapGroup(TArray<UWidgetComponen
 
     if (m_GroupsByControlOverlapType.Contains(ControlOverlapType))
     {
-        if (auto LGroupsContainer = *m_GroupsByControlOverlapType.Find(ControlOverlapType))
+        if (auto lGroupsContainer = *m_GroupsByControlOverlapType.Find(ControlOverlapType))
         {
-            return LGroupsContainer->CreateGroup(WidgetComponents, GroupTagId, GroupSettings);
+            return lGroupsContainer->CreateGroup(WidgetComponents, GroupTagId, GroupSettings);
         }
     }
 
@@ -54,9 +54,9 @@ bool UUMGOverlapControlManager::AddWidgetComponentToControlOverlapGroup(UWidgetC
 {
     if (WidgetComponent && ControlOverlapType != EControlOverlapType::None && !GroupTagId.IsEmpty() && m_GroupsByControlOverlapType.Contains(ControlOverlapType))
     {
-        if (auto LGroupsContainer = *m_GroupsByControlOverlapType.Find(ControlOverlapType))
+        if (auto lGroupsContainer = *m_GroupsByControlOverlapType.Find(ControlOverlapType))
         {
-            return LGroupsContainer->AddWidgetComponentToGroup(WidgetComponent, GroupTagId);
+            return lGroupsContainer->AddWidgetComponentToGroup(WidgetComponent, GroupTagId);
         }
     }
     return false;
@@ -68,9 +68,9 @@ bool UUMGOverlapControlManager::RemoveWidgetComponentFromControlOverlapGroup(UWi
     {
         if (m_GroupsByControlOverlapType.Contains(ControlOverlapType))
         {
-            if (auto LGroupsContainer = *m_GroupsByControlOverlapType.Find(ControlOverlapType))
+            if (auto lGroupsContainer = *m_GroupsByControlOverlapType.Find(ControlOverlapType))
             {
-                return LGroupsContainer->RemoveWidgetComponentFromGroup(WidgetComponent, GroupTagId);
+                return lGroupsContainer->RemoveWidgetComponentFromGroup(WidgetComponent, GroupTagId);
             }
         }
     }

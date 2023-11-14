@@ -182,51 +182,51 @@ void UUMGControlOverlapGroup::Update()
     }
 
 
-    TArray<FVector2D> LViewportPositions;
-    TArray<UUMGControlOverlapItem*> LItemsForAllign;
-    GetAndPrepareItemsForAllign(LItemsForAllign, LViewportPositions);
+    TArray<FVector2D> lViewportPositions;
+    TArray<UUMGControlOverlapItem*> lItemsForAllign;
+    GetAndPrepareItemsForAllign(lItemsForAllign, lViewportPositions);
     
-    for (int32 i = 0; i < LViewportPositions.Num(); i++)
+    for (int32 i = 0; i < lViewportPositions.Num(); i++)
     {
-        UUMGControlOverlapItem* LItemA = LItemsForAllign[i];
-        if (!LItemA)
+        UUMGControlOverlapItem* lItemA = lItemsForAllign[i];
+        if (!lItemA)
         {
             continue;
         }
         
-        FVector2D LItemASize = LItemA->GetDesiredSize();
-        FVector2D LItemAScreenPos = LViewportPositions[i];
-        LItemA->Update(i);
-        float XOffset = LItemAScreenPos.X + LItemASize.X;
-        float YPos = LItemAScreenPos.Y;
-        FSlateRect LItemARect(LItemAScreenPos.X, LItemAScreenPos.Y, LItemAScreenPos.X + 10.0f + LItemASize.X, LItemAScreenPos.Y + LItemASize.Y);
+        FVector2D lItemASize = lItemA->GetDesiredSize();
+        FVector2D lItemAScreenPos = lViewportPositions[i];
+        lItemA->Update(i);
+        float XOffset = lItemAScreenPos.X + lItemASize.X;
+        float YPos = lItemAScreenPos.Y;
+        FSlateRect lItemARect(lItemAScreenPos.X, lItemAScreenPos.Y, lItemAScreenPos.X + 10.0f + lItemASize.X, lItemAScreenPos.Y + lItemASize.Y);
 
-        for (int32 j = i + 1; j < LViewportPositions.Num(); j++)
+        for (int32 j = i + 1; j < lViewportPositions.Num(); j++)
         {
-            UUMGControlOverlapItem* LItemB = LItemsForAllign[j];
-            if (!LItemB)
+            UUMGControlOverlapItem* lItemB = lItemsForAllign[j];
+            if (!lItemB)
             {
                 continue;
             }
-            FVector2D LItemBSize = LItemB->GetDesiredSize();
-            FVector2D LItemBScreenPos = LViewportPositions[j];
-            FSlateRect LItemBRect(LItemBScreenPos.X, LItemBScreenPos.Y, LItemBScreenPos.X + LItemBSize.X, LItemBScreenPos.Y + LItemBSize.Y);
+            FVector2D lItemBSize = lItemB->GetDesiredSize();
+            FVector2D lItemBScreenPos = lViewportPositions[j];
+            FSlateRect lItemBRect(lItemBScreenPos.X, lItemBScreenPos.Y, lItemBScreenPos.X + lItemBSize.X, lItemBScreenPos.Y + lItemBSize.Y);
 
-            if (FSlateRect::DoRectanglesIntersect(LItemARect, LItemBRect))
+            if (FSlateRect::DoRectanglesIntersect(lItemARect, lItemBRect))
             {
-                if (!FVector::PointsAreNear(LItemB->GetStartedPosition(), LItemB->GetWorldLocation(), 5))
+                if (!FVector::PointsAreNear(lItemB->GetStartedPosition(), lItemB->GetWorldLocation(), 5))
                 {
 
-                    FVector2D ItemBStartScreenPos;
-                    if (UGameplayStatics::ProjectWorldToScreen(m_PlayerController, LItemB->GetStartedPosition(), ItemBStartScreenPos))
+                    FVector2D lItemBStartScreenPos;
+                    if (UGameplayStatics::ProjectWorldToScreen(m_PlayerController, lItemB->GetStartedPosition(), lItemBStartScreenPos))
                     {
-                        if (ItemBStartScreenPos.X > 0 && ItemBStartScreenPos.X < m_ViewPortSize.X && ItemBStartScreenPos.Y>0 && ItemBStartScreenPos.Y < m_ViewPortSize.Y)
+                        if (lItemBStartScreenPos.X > 0 && lItemBStartScreenPos.X < m_ViewPortSize.X && lItemBStartScreenPos.Y>0 && lItemBStartScreenPos.Y < m_ViewPortSize.Y)
                         {
-                            FSlateRect ItemBStartPosRect(ItemBStartScreenPos.X, ItemBStartScreenPos.Y, ItemBStartScreenPos.X + LItemBSize.X, ItemBStartScreenPos.Y + LItemBSize.Y);
-                            if (!FSlateRect::DoRectanglesIntersect(LItemARect, ItemBStartPosRect))
+                            FSlateRect lItemBStartPosRect(lItemBStartScreenPos.X, lItemBStartScreenPos.Y, lItemBStartScreenPos.X + lItemBSize.X, lItemBStartScreenPos.Y + lItemBSize.Y);
+                            if (!FSlateRect::DoRectanglesIntersect(lItemARect, lItemBStartPosRect))
                             {
-                                LItemB->SetStartedLoaction();
-                                LViewportPositions[j] = ItemBStartScreenPos;
+                                lItemB->SetStartedLoaction();
+                                lViewportPositions[j] = lItemBStartScreenPos;
                                 continue;
                             }
 
@@ -236,49 +236,49 @@ void UUMGControlOverlapGroup::Update()
                 }
 
 
-                FVector2D NewViewPortPosition = FVector2D(LItemAScreenPos.X + LItemASize.X /*- ItemBSize.X / 2.0f*/, YPos);
-                if (LItemB->SetPositionInViewport(m_PlayerController, NewViewPortPosition))
+                FVector2D lNewViewPortPosition = FVector2D(lItemAScreenPos.X + lItemASize.X /*- ItemBSize.X / 2.0f*/, YPos);
+                if (lItemB->SetPositionInViewport(m_PlayerController, lNewViewPortPosition))
                 {
-                    LViewportPositions[j] = NewViewPortPosition;
+                    lViewportPositions[j] = lNewViewPortPosition;
                     continue;
                 }
                 else
                 {
                     GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("True"), true, FVector2D(1.0f, 1.0f));
                 }
-                XOffset += LItemBSize.X;
+                XOffset += lItemBSize.X;
                 
             }
             else
             {
-                if (!FVector::PointsAreNear(LItemB->GetStartedPosition(),LItemB->GetWorldLocation(), 5))
+                if (!FVector::PointsAreNear(lItemB->GetStartedPosition(),lItemB->GetWorldLocation(), 5))
                 {
-                    FVector2D ItemBStartScreenPos(0.0f,0.0f);
-                    if (UGameplayStatics::ProjectWorldToScreen(m_PlayerController, LItemB->GetStartedPosition(), ItemBStartScreenPos))
+                    FVector2D lItemBStartScreenPos(0.0f,0.0f);
+                    if (UGameplayStatics::ProjectWorldToScreen(m_PlayerController, lItemB->GetStartedPosition(), lItemBStartScreenPos))
                     {
-                        const float Tolerance = 0.0001f; // Set a small tolerance value
-                        bool bIsDenormalized = FMath::Abs(1.0f - ItemBStartScreenPos.Size()) > Tolerance;
-                        if (ItemBStartScreenPos.ContainsNaN() || ItemBStartScreenPos.IsNearlyZero(LItemBSize.X)/*> 1800 || ItemBStartScreenPos.Y < 0 || ItemBStartScreenPos.X>2500 || ItemBStartScreenPos.X < 0*/)
+                        const float lTolerance = 0.0001f; // Set a small tolerance value
+                        bool lbIsDenormalized = FMath::Abs(1.0f - lItemBStartScreenPos.Size()) > lTolerance;
+                        if (lItemBStartScreenPos.ContainsNaN() || lItemBStartScreenPos.IsNearlyZero(lItemBSize.X)/*> 1800 || ItemBStartScreenPos.Y < 0 || ItemBStartScreenPos.X>2500 || ItemBStartScreenPos.X < 0*/)
                         {
-                            LItemB->SetStartedLoaction();
-                            LViewportPositions[j] = ItemBStartScreenPos;
+                            lItemB->SetStartedLoaction();
+                            lViewportPositions[j] = lItemBStartScreenPos;
                             GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("NONE"), true, FVector2D(1.0f, 1.0f));
                             continue;
                         }
 
-                        if (bIsDenormalized)
+                        if (lbIsDenormalized)
                         {
-                            LItemB->SetStartedLoaction();
-                            UGameplayStatics::ProjectWorldToScreen(m_PlayerController, LItemB->GetStartedPosition(), ItemBStartScreenPos);
-                            LViewportPositions[j] = ItemBStartScreenPos;
+                            lItemB->SetStartedLoaction();
+                            UGameplayStatics::ProjectWorldToScreen(m_PlayerController, lItemB->GetStartedPosition(), lItemBStartScreenPos);
+                            lViewportPositions[j] = lItemBStartScreenPos;
                             continue;
                         }
 
-                        FSlateRect ItemBStartPosRect(ItemBStartScreenPos.X, ItemBStartScreenPos.Y, ItemBStartScreenPos.X + LItemBSize.X, ItemBStartScreenPos.Y + LItemBSize.Y);
-                        if (!FSlateRect::DoRectanglesIntersect(LItemARect, ItemBStartPosRect))
+                        FSlateRect lItemBStartPosRect(lItemBStartScreenPos.X, lItemBStartScreenPos.Y, lItemBStartScreenPos.X + lItemBSize.X, lItemBStartScreenPos.Y + lItemBSize.Y);
+                        if (!FSlateRect::DoRectanglesIntersect(lItemARect, lItemBStartPosRect))
                         {
-                            LItemB->SetStartedLoaction();
-                            LViewportPositions[j] = ItemBStartScreenPos;
+                            lItemB->SetStartedLoaction();
+                            lViewportPositions[j] = lItemBStartScreenPos;
                             continue;
                         }
 
@@ -309,9 +309,9 @@ bool UUMGControlOverlapGroup::AddWidgetComponent(UWidgetComponent* WidgetCompone
     {
         return false;
     }
-    auto LNewOverlapItem = NewObject<UUMGControlOverlapItem>(this, UUMGControlOverlapItem::StaticClass());
-    m_Items.Add(LNewOverlapItem);
-    LNewOverlapItem->SetControlledWidgetComponent(WidgetComponent);
+    auto lNewOverlapItem = NewObject<UUMGControlOverlapItem>(this, UUMGControlOverlapItem::StaticClass());
+    m_Items.Add(lNewOverlapItem);
+    lNewOverlapItem->SetControlledWidgetComponent(WidgetComponent);
     return true;
 }
 
@@ -346,9 +346,9 @@ void UUMGControlOverlapGroup::Init(EControlOverlapType NewControlOverlapType, co
     m_MaxItemsCount = InSettings.MaxItemsCount;
     if (m_PlayerController)
     {
-        int32 LViewPortX, LViewPortY = 0;
-        m_PlayerController->GetViewportSize(LViewPortX, LViewPortY);
-        m_ViewPortSize = FVector2D(static_cast<float>(LViewPortX), static_cast<float>(LViewPortY));
+        int32 lViewPortX, lViewPortY = 0;
+        m_PlayerController->GetViewportSize(lViewPortX, lViewPortY);
+        m_ViewPortSize = FVector2D(static_cast<float>(lViewPortX), static_cast<float>(lViewPortY));
     }
 }
 
@@ -395,24 +395,24 @@ bool UUMGControlOverlapGroupContainer::CreateGroup(TArray<UWidgetComponent*>& Wi
     }
     if (m_GroupByTag.Contains(TagId))
     {
-        if (auto LGroup = *m_GroupByTag.Find(TagId))
+        if (auto lGroup = *m_GroupByTag.Find(TagId))
         {
-            return LGroup->AddWidgetComponents(WidgetComponent);
+            return lGroup->AddWidgetComponents(WidgetComponent);
         }
     }
-    auto LNewGroup = NewObject<UUMGControlOverlapGroup>(this, UUMGControlOverlapGroup::StaticClass());
-    LNewGroup->Init(m_ControlOverlapType, Settings);
-    m_GroupByTag.Add(TagId, LNewGroup);
-    return LNewGroup->AddWidgetComponents(WidgetComponent);;
+    auto lNewGroup = NewObject<UUMGControlOverlapGroup>(this, UUMGControlOverlapGroup::StaticClass());
+    lNewGroup->Init(m_ControlOverlapType, Settings);
+    m_GroupByTag.Add(TagId, lNewGroup);
+    return lNewGroup->AddWidgetComponents(WidgetComponent);;
 }
 
 bool UUMGControlOverlapGroupContainer::AddWidgetComponentToGroup(UWidgetComponent* WidgetComponent, const FString& TagId)
 {
     if (WidgetComponent && !TagId.IsEmpty() && m_GroupByTag.Contains(TagId))
     {
-        if (auto LGroup = *m_GroupByTag.Find(TagId))
+        if (auto lGroup = *m_GroupByTag.Find(TagId))
         {
-            return LGroup->AddWidgetComponent(WidgetComponent);
+            return lGroup->AddWidgetComponent(WidgetComponent);
         }
     }
     return false;
@@ -422,9 +422,9 @@ bool UUMGControlOverlapGroupContainer::RemoveWidgetComponentFromGroup(UWidgetCom
 {
     if (WidgetComponent && !TagId.IsEmpty() && m_GroupByTag.Contains(TagId))
     {
-        if (auto LGroup = *m_GroupByTag.Find(TagId))
+        if (auto lGroup = *m_GroupByTag.Find(TagId))
         {
-            return LGroup->RemoveWidgetComponent(WidgetComponent);
+            return lGroup->RemoveWidgetComponent(WidgetComponent);
         }
     }
     return false;
@@ -434,9 +434,9 @@ bool UUMGControlOverlapGroupContainer::RemoveGroup(const FString& TagId)
 {
     if (!TagId.IsEmpty() && m_GroupByTag.Contains(TagId))
     {
-        if (auto LGroup = *m_GroupByTag.Find(TagId))
+        if (auto lGroup = *m_GroupByTag.Find(TagId))
         {
-            if (LGroup->Destroy())
+            if (lGroup->Destroy())
             {
                 m_GroupByTag.Remove(TagId);
                 return true;
