@@ -30,6 +30,8 @@ protected:
 
 private:
 
+	bool IsItemOverlapedWithOther(const UUMGControlOverlapItem* CheckingItem, const TArray<UUMGControlOverlapItem*>& Items) const;
+
 	UUMGControlOverlapItem* GetItemByWidgetComponent(UWidgetComponent* WidgetComponent) const;
 
 	bool GetAndPrepareItemsForAllign(TArray<UUMGControlOverlapItem*>& ItemsToAllign, TArray<FVector2D>& Positions);

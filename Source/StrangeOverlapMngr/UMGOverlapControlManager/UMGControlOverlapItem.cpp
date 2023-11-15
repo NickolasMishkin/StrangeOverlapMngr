@@ -37,7 +37,7 @@ FVector2D UUMGControlOverlapItem::GetDesiredSize() const
 {
     if (m_ControlledWidgetComponent)
     {
-        return m_ControlledWidgetComponent->GetDrawSize();
+        return m_ControlledWidgetComponent->GetWidget()->GetCachedGeometry().GetAbsoluteSize();
     }
     return FVector2D();
 }

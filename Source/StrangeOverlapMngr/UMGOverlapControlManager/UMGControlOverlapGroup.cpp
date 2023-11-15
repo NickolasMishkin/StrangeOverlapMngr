@@ -117,6 +117,46 @@ bool ProjectWorldToScreenNormalized(APlayerController* PlayerController, const F
 }
 
 
+bool UUMGControlOverlapGroup::IsItemOverlapedWithOther(const UUMGControlOverlapItem* CheckingItem, const TArray<UUMGControlOverlapItem*>& Items) const
+{
+    FVector2D lItemSize = CheckingItem->GetDesiredSize();
+    FVector2D lItemScreenPos{0.0f,0.0f};
+    if (CheckingItem->GetPositionInViewport(m_PlayerController, lItemScreenPos))
+    {
+        if (lItemScreenPos.X >= 0.0f && lItemScreenPos.X <= m_ViewPortSize.X && lItemScreenPos.Y >= 0 && lItemScreenPos.Y <= m_ViewPortSize.Y)
+        {
+            for (auto Item : Items)
+            {
+                if (Item != CheckingItem)
+                {
+                    if (WidgetsOverlap(CheckingItem->GetWidgetComponent(), Item->GetWidgetComponent(), m_PlayerController))
+                    {
+                        return true;
+                    }
+                }
+            }
+           
+
+        }
+    }
+
+    if (ProjectWorldToScreenNormalized(m_PlayerController, CheckingItem->GetStartedPosition(), lItemScreenPos))
+    {
+        for (auto Item : Items)
+        {
+            if (Item != CheckingItem)
+            {
+                if (WidgetsOverlap(CheckingItem->GetWidgetComponent(), Item->GetWidgetComponent(), m_PlayerController))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    
+    return false;
+}
+
 UUMGControlOverlapItem* UUMGControlOverlapGroup::GetItemByWidgetComponent(UWidgetComponent* WidgetComponent) const
 {
     if (WidgetComponent)
@@ -142,7 +182,7 @@ bool UUMGControlOverlapGroup::GetAndPrepareItemsForAllign(TArray<UUMGControlOver
         const float Tolerance = 0.0001f;
         if (it->GetPositionInViewport(m_PlayerController, Pos))
         {
-            if (Pos.X > 0 && Pos.X < m_ViewPortSize.X && Pos.Y>0 && Pos.Y < m_ViewPortSize.Y)
+            if (Pos.X > 0.0f && Pos.X <= m_ViewPortSize.X && Pos.Y>0 && Pos.Y < m_ViewPortSize.Y)
             {
                 Positions.Add(Pos);
                 ItemsToAllign.Add(it);
@@ -152,15 +192,17 @@ bool UUMGControlOverlapGroup::GetAndPrepareItemsForAllign(TArray<UUMGControlOver
         }
         if (!FVector::PointsAreNear(it->GetStartedPosition(), it->GetWorldLocation(), 5))
         {
-            it->SetStartedLoaction();
-            if (it->GetPositionInViewport(m_PlayerController, Pos))
+            if (!IsItemOverlapedWithOther(it, m_Items))
             {
-                Positions.Add(Pos);
-                ItemsToAllign.Add(it);
-                it->PosForSort = Pos;
-                continue;
+                it->SetStartedLoaction();
+                if (it->GetPositionInViewport(m_PlayerController, Pos))
+                {
+                    Positions.Add(Pos);
+                    ItemsToAllign.Add(it);
+                    it->PosForSort = Pos;
+                    continue;
+                }
             }
-
         }
 
     }

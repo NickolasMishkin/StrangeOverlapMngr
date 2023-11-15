@@ -4,6 +4,7 @@
 #include "UMGControlOverlapItem.h"
 #include "UMGControlOverlapGroup.h"
 #include "Components/WidgetComponent.h"
+#include <Kismet/GameplayStatics.h>
 
 bool UUMGOverlapControlManager::RemoveControlOverlapGroup(EControlOverlapType ControlOverlapType, const FString& GroupTagId)
 {
@@ -23,14 +24,34 @@ bool UUMGOverlapControlManager::RemoveControlOverlapGroup(EControlOverlapType Co
 void UUMGOverlapControlManager::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
     Super::NativeTick(MyGeometry, InDeltaTime);
-    for (const auto& It : m_GroupsByControlOverlapType)
+
+    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+    if (PlayerController && PlayerController->GetPawn())
     {
-        It.Value->Update();
+        FVector CurrentCameraPosition = PlayerController->GetPawn()->GetActorLocation();
+
+        // Check if the position has changed
+        if (!LastCameraPosition.Equals(CurrentCameraPosition))
+        {
+            for (const auto& It : m_GroupsByControlOverlapType)
+            {
+                It.Value->Update();
+            }
+            LastCameraPosition = CurrentCameraPosition;
+        }
     }
+    
+    
 }
 
 bool UUMGOverlapControlManager::CreateControlOverlapGroup(TArray<UWidgetComponent*> WidgetComponents, EControlOverlapType ControlOverlapType, const FString& GroupTagId, const FUMGOverlapControlGroupSettings& GroupSettings)
 {
+    /*FTimerHandle Handle;
+    GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([&] { for (const auto& It : m_GroupsByControlOverlapType)
+    {
+        It.Value->Update();
+    } }), 1.0f, true);*/
+    
     if (WidgetComponents.Num() <= 0 || WidgetComponents.Num() > GroupSettings.MaxItemsCount || ControlOverlapType == EControlOverlapType::None || GroupTagId.IsEmpty())
     {
         return false;

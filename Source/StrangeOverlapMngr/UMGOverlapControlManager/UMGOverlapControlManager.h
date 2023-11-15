@@ -63,6 +63,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Strange Components")
 	bool RemoveWidgetComponentFromControlOverlapGroup(UWidgetComponent* WidgetComponent, EControlOverlapType ControlOverlapType, const FString& GroupTagId);
 
+
+	FVector LastCameraPosition;
 protected:
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
