@@ -99,6 +99,23 @@ void CheckAndAlignWidgets(TArray<UWidgetComponent*> WidgetComponents, APlayerCon
     }
 }
 
+bool ProjectWorldToScreenNormalized(APlayerController* PlayerController, const FVector& WorldLocation, FVector2D& OutScreenPosition)
+{
+    // Project world location to screen
+    if (PlayerController && PlayerController->ProjectWorldLocationToScreen(WorldLocation, OutScreenPosition))
+    {
+        // Get viewport size
+        int32 ViewportSizeX, ViewportSizeY;
+        PlayerController->GetViewportSize(ViewportSizeX, ViewportSizeY);
+
+        // Check if the screen position is within the viewport bounds
+        return OutScreenPosition.X >= 0.0f && OutScreenPosition.X <= ViewportSizeX &&
+            OutScreenPosition.Y >= 0.0f && OutScreenPosition.Y <= ViewportSizeY;
+    }
+
+    return false;
+}
+
 
 UUMGControlOverlapItem* UUMGControlOverlapGroup::GetItemByWidgetComponent(UWidgetComponent* WidgetComponent) const
 {
