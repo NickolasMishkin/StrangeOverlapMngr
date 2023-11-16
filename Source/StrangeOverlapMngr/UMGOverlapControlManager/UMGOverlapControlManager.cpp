@@ -24,22 +24,22 @@ bool UUMGOverlapControlManager::RemoveControlOverlapGroup(EControlOverlapType Co
 void UUMGOverlapControlManager::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
     Super::NativeTick(MyGeometry, InDeltaTime);
-
-    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-    if (PlayerController && PlayerController->GetPawn())
+    for (const auto& It : m_GroupsByControlOverlapType)
     {
-        FVector CurrentCameraPosition = PlayerController->GetPawn()->GetActorLocation();
-
-        // Check if the position has changed
-        if (!LastCameraPosition.Equals(CurrentCameraPosition))
-        {
-            for (const auto& It : m_GroupsByControlOverlapType)
-            {
-                It.Value->Update();
-            }
-            LastCameraPosition = CurrentCameraPosition;
-        }
+        It.Value->Update();
     }
+    //APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+    //if (PlayerController && PlayerController->GetPawn())
+    //{
+    //    FVector CurrentCameraPosition = PlayerController->GetPawn()->GetActorLocation();
+
+    //    // Check if the position has changed
+    //    if (!LastCameraPosition.Equals(CurrentCameraPosition))
+    //    {
+    //        
+    //        LastCameraPosition = CurrentCameraPosition;
+    //    }
+    //}
     
     
 }

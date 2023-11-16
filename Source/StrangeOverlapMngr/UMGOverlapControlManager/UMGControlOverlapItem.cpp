@@ -52,6 +52,7 @@ void UUMGControlOverlapItem::SetStartedLoaction()
     if (m_ControlledWidgetComponent)
     {
         m_ControlledWidgetComponent->SetWorldLocation(m_StartedWorldPosition);
+        SetIsGrouping(false);
         GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("SetWorldLocation"), true, FVector2D(1.0f, 1.0f));
     }
 }
