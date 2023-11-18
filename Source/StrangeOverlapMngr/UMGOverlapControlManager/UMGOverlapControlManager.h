@@ -41,8 +41,13 @@ class STRANGEOVERLAPMNGR_API IUMGOverlapWidgetInterface
 
 public:
 
+	//Call when overlap item index in group has been changed
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Strange Components")
-	bool UpdateIndexInGroup(int32 NewIndex);
+	void UpdateIndexInGroup(int32 NewIndex);
+
+	//Call when overlap item has been removed from or added to a group
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Strange Components")
+	void UpdateInGroup(bool bInGroup);
 };
 
 UCLASS(BlueprintType)
@@ -51,20 +56,23 @@ class STRANGEOVERLAPMNGR_API UUMGOverlapControlManager : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+
+	//Remove control overlap group by tag id and and control overlap type
 	UFUNCTION(BlueprintCallable, Category = "Strange Components")
 	bool RemoveControlOverlapGroup(EControlOverlapType ControlOverlapType, const FString& GroupTagId);
 
+	//Create control overlap group with tag id and control overlap type of widget components
 	UFUNCTION(BlueprintCallable, Category = "Strange Components")
 	bool CreateControlOverlapGroup(TArray<UWidgetComponent*> WidgetComponents, EControlOverlapType ControlOverlapType, const FString& GroupTagId, const FUMGOverlapControlGroupSettings& GroupSettings);
 
+	//Add widget component to control overlap group with tag id and control overlap type
 	UFUNCTION(BlueprintCallable, Category = "Strange Components")
 	bool AddWidgetComponentToControlOverlapGroup(UWidgetComponent* WidgetComponent, EControlOverlapType ControlOverlapType, const FString& GroupTagId);
 
+	//Remove widget component from control overlap group with tag id and control overlap type
 	UFUNCTION(BlueprintCallable, Category = "Strange Components")
 	bool RemoveWidgetComponentFromControlOverlapGroup(UWidgetComponent* WidgetComponent, EControlOverlapType ControlOverlapType, const FString& GroupTagId);
 
-
-	FVector LastCameraPosition;
 protected:
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;

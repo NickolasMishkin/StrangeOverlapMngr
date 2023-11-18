@@ -20,8 +20,6 @@ public:
 	FVector2D GetDesiredSize() const;
 	bool GetPositionInViewport(APlayerController* PlayerController, FVector2D& ViewPortPosition) const;
 	void SetStartedLoaction();
-
-	FORCEINLINE void SetIndex(int32 NewIndex) { m_Index = NewIndex; }
 	void SetControlledWidgetComponent(UWidgetComponent* WidgetComponent);
 	void Destroy();
 
@@ -30,10 +28,10 @@ public:
 	FVector GetWorldLocation() const;
 
 	FORCEINLINE bool IsGrouping() const { return m_bIsGrouping; }
-	FORCEINLINE void SetIsGrouping(bool NewbIsGrouping) { m_bIsGrouping = NewbIsGrouping; };
+	void SetIsGrouping(bool NewbIsGrouping);
 	FORCEINLINE FVector GetStartedPosition() const { return m_StartedWorldPosition; }
 
-	void Update(int32 NewIndex);
+	void UpdateIndex(int32 NewIndex);
 
 private:
 

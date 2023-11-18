@@ -28,30 +28,10 @@ void UUMGOverlapControlManager::NativeTick(const FGeometry& MyGeometry, float In
     {
         It.Value->Update();
     }
-    //APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-    //if (PlayerController && PlayerController->GetPawn())
-    //{
-    //    FVector CurrentCameraPosition = PlayerController->GetPawn()->GetActorLocation();
-
-    //    // Check if the position has changed
-    //    if (!LastCameraPosition.Equals(CurrentCameraPosition))
-    //    {
-    //        
-    //        LastCameraPosition = CurrentCameraPosition;
-    //    }
-    //}
-    
-    
 }
 
 bool UUMGOverlapControlManager::CreateControlOverlapGroup(TArray<UWidgetComponent*> WidgetComponents, EControlOverlapType ControlOverlapType, const FString& GroupTagId, const FUMGOverlapControlGroupSettings& GroupSettings)
 {
-    /*FTimerHandle Handle;
-    GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([&] { for (const auto& It : m_GroupsByControlOverlapType)
-    {
-        It.Value->Update();
-    } }), 1.0f, true);*/
-    
     if (WidgetComponents.Num() <= 0 || WidgetComponents.Num() > GroupSettings.MaxItemsCount || ControlOverlapType == EControlOverlapType::None || GroupTagId.IsEmpty())
     {
         return false;
@@ -65,7 +45,7 @@ bool UUMGOverlapControlManager::CreateControlOverlapGroup(TArray<UWidgetComponen
         }
     }
 
-    auto LNewGroupsContainer = NewObject<UUMGControlOverlapGroupContainer>(this, UUMGControlOverlapGroupContainer::StaticClass());
+    UUMGControlOverlapGroupContainer* LNewGroupsContainer = NewObject<UUMGControlOverlapGroupContainer>(this, UUMGControlOverlapGroupContainer::StaticClass());
     LNewGroupsContainer->SetControlOverlapType(ControlOverlapType);
     m_GroupsByControlOverlapType.Add(ControlOverlapType, LNewGroupsContainer);
     return LNewGroupsContainer->CreateGroup(WidgetComponents, GroupTagId, GroupSettings);

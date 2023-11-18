@@ -119,18 +119,18 @@ bool UUMGControlOverlapGroup::IsItemOverlapedWithOther(const UUMGControlOverlapI
     //    }
     //}
 
-    if (ProjectWorldToScreenNormalized(m_PlayerController, CheckingItem->GetStartedPosition(), lItemScreenPos))
+if (ProjectWorldToScreenNormalized(m_PlayerController, CheckingItem->GetStartedPosition(), lItemScreenPos))
+{
+    for (auto Item : Items)
     {
-        for (auto Item : Items)
+        if (Item != CheckingItem)
         {
-            if (Item != CheckingItem)
-            {
-                return ItemsPositionsItersect(lItemScreenPos, CheckingItem, Item);
-            }
+            return ItemsPositionsItersect(lItemScreenPos, CheckingItem, Item);
         }
     }
-    
-    return false;
+}
+
+return false;
 }
 
 UUMGControlOverlapItem* UUMGControlOverlapGroup::GetItemByWidgetComponent(UWidgetComponent* WidgetComponent) const
@@ -157,7 +157,7 @@ bool UUMGControlOverlapGroup::GetAndPrepareItemsForAllign(TArray<UUMGControlOver
         FVector2D Pos(0.0f, 0.0f);
         if (it->GetPositionInViewport(m_PlayerController, Pos))
         {
-            if (Pos.X > 0.0f && Pos.X <= m_ViewPortSize.X && Pos.Y>0 && Pos.Y < m_ViewPortSize.Y)
+            if (Pos.X > 0.0f && Pos.X <= m_ViewPortSize.X && Pos.Y > 0 && Pos.Y < m_ViewPortSize.Y)
             {
                 Positions.Add(Pos);
                 ItemsToAllign.Add(it);
@@ -179,16 +179,16 @@ bool UUMGControlOverlapGroup::GetAndPrepareItemsForAllign(TArray<UUMGControlOver
     }
 
     ItemsToAllign.Sort([&](const UUMGControlOverlapItem& ItemA, const UUMGControlOverlapItem& ItemB)
-    {
-        return ItemA.PosForSort.X < ItemB.PosForSort.X;
+        {
+            return ItemA.PosForSort.X < ItemB.PosForSort.X;
 
-    });
+        });
 
     Positions.Sort([&](const FVector2D& ItemA, const FVector2D& ItemB)
-    {
-        return ItemA.X < ItemB.X;
+        {
+            return ItemA.X < ItemB.X;
 
-    });
+        });
 
     return true;
 }
@@ -201,30 +201,37 @@ void UUMGControlOverlapGroup::Update()
     }
 
 
+
     TArray<FVector2D> lViewportPositions;
     TArray<UUMGControlOverlapItem*> lItemsForAllign;
     TArray<UUMGControlOverlapItem*> lItemsForCorectPos;
-    //GetAndPrepareItemsForAllign(lItemsForAllign, lViewportPositions, lItemsForCorectPos);
-    
-    //for (auto ItemForCorrect : m_Items)
+
+    //For TESTS
+    //for (int32 i = 0; i < m_Items.Num(); i++)
     //{
-    //    if (!IsItemOverlapedWithOther(ItemForCorrect, m_Items))
+    //    if (i == 0)
     //    {
-    //        ItemForCorrect->SetStartedLoaction();
+    //        continue;
+    //    }
+    //    FVector2D Pos(0.0f, 0.0f);
+    //    if (m_Items[0]->GetPositionInViewport(m_PlayerController, Pos))
+    //    {
+    //        m_Items[i]->SetPositionInViewport(m_PlayerController, FVector2D(Pos.X + m_Items[0]->GetDesiredSize().X, Pos.Y));
     //    }
     //}
+    //GetAndPrepareItemsForAllign(lItemsForAllign, lViewportPositions, lItemsForCorectPos);
+    
+    
     GetAndPrepareItemsForAllign(lItemsForAllign, lViewportPositions, lItemsForCorectPos);
-    //if (lItemsForCorectPos.Num() > 0)
-    //{
-    //    GetAndPrepareItemsForAllign(lItemsForAllign, lViewportPositions, lItemsForCorectPos);
-    //}
 
-    if (!FVector::PointsAreNear(lItemsForAllign[0]->GetStartedPosition(), lItemsForAllign[0]->GetWorldLocation(), 5))
+    if (lItemsForAllign.IsValidIndex(0))
     {
-        lItemsForAllign[0]->SetStartedLoaction();
-        GetAndPrepareItemsForAllign(lItemsForAllign, lViewportPositions, lItemsForCorectPos);
+        if (!FVector::PointsAreNear(lItemsForAllign[0]->GetStartedPosition(), lItemsForAllign[0]->GetWorldLocation(), 5))
+        {
+            lItemsForAllign[0]->SetStartedLoaction();
+            GetAndPrepareItemsForAllign(lItemsForAllign, lViewportPositions, lItemsForCorectPos);
+        }
     }
-
 
     for (int32 i = 0; i < lViewportPositions.Num(); i++)
     {
@@ -241,7 +248,7 @@ void UUMGControlOverlapGroup::Update()
 
         FVector2D lItemASize = lItemA->GetDesiredSize();
         FVector2D lItemAScreenPos = lViewportPositions[i];
-        lItemA->Update(i);
+        lItemA->UpdateIndex(i);
         float XOffset = lItemAScreenPos.X + lItemASize.X;
         float YPos = lItemAScreenPos.Y;
         FSlateRect lItemARect(lItemAScreenPos.X, lItemAScreenPos.Y, lItemAScreenPos.X + lItemASize.X, lItemAScreenPos.Y + lItemASize.Y);
@@ -285,50 +292,6 @@ void UUMGControlOverlapGroup::Update()
                         continue;
                     }
                 }
-                /*if (lItemB->IsGrouping())
-                {
-                    if (!IsItemOverlapedWithOther(lItemB, { lItemA }))
-                    {
-                        lItemB->SetStartedLoaction();
-                        continue;
-                    }
-                }*/
-                
-                //lItemB->SetIsGrouping(false);
-                //if (!FVector::PointsAreNear(lItemB->GetStartedPosition(),lItemB->GetWorldLocation(), 5))
-                //{
-                //    FVector2D lItemBStartScreenPos(0.0f,0.0f);
-                //    if (UGameplayStatics::ProjectWorldToScreen(m_PlayerController, lItemB->GetStartedPosition(), lItemBStartScreenPos))
-                //    {
-                //        //const float lTolerance = 0.0001f; // Set a small tolerance value
-                //        //bool lbIsDenormalized = FMath::Abs(1.0f - lItemBStartScreenPos.Size()) > lTolerance;
-                //        //if (lItemBStartScreenPos.ContainsNaN() || lItemBStartScreenPos.IsNearlyZero(lItemBSize.X)/*> 1800 || ItemBStartScreenPos.Y < 0 || ItemBStartScreenPos.X>2500 || ItemBStartScreenPos.X < 0*/)
-                //        //{
-                //        //    lItemB->SetStartedLoaction();
-                //        //    lViewportPositions[j] = lItemBStartScreenPos;
-                //        //    GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("NONE"), true, FVector2D(1.0f, 1.0f));
-                //        //    continue;
-                //        //}
-
-                //        //if (lbIsDenormalized)
-                //        //{
-                //        //    lItemB->SetStartedLoaction();
-                //        //    UGameplayStatics::ProjectWorldToScreen(m_PlayerController, lItemB->GetStartedPosition(), lItemBStartScreenPos);
-                //        //    lViewportPositions[j] = lItemBStartScreenPos;
-                //        //    continue;
-                //        //}
-
-                //        FSlateRect lItemBStartPosRect(lItemBStartScreenPos.X, lItemBStartScreenPos.Y, lItemBStartScreenPos.X + lItemBSize.X, lItemBStartScreenPos.Y + lItemBSize.Y);
-                //        if (!FSlateRect::DoRectanglesIntersect(lItemARect, lItemBStartPosRect))
-                //        {
-                //            lItemB->SetStartedLoaction();
-                //            lViewportPositions[j] = lItemBStartScreenPos;
-                //            continue;
-                //        }
-
-                //    }
-                //    
-                //}
             }
         }
     }
@@ -353,7 +316,7 @@ bool UUMGControlOverlapGroup::AddWidgetComponent(UWidgetComponent* WidgetCompone
     {
         return false;
     }
-    auto lNewOverlapItem = NewObject<UUMGControlOverlapItem>(this, UUMGControlOverlapItem::StaticClass());
+    UUMGControlOverlapItem* lNewOverlapItem = NewObject<UUMGControlOverlapItem>(this, UUMGControlOverlapItem::StaticClass());
     m_Items.Add(lNewOverlapItem);
     lNewOverlapItem->SetControlledWidgetComponent(WidgetComponent);
     return true;
@@ -418,7 +381,7 @@ bool UUMGControlOverlapGroupContainer::CreateGroup(TArray<UWidgetComponent*>& Wi
             return lGroup->AddWidgetComponents(WidgetComponent);
         }
     }
-    auto lNewGroup = NewObject<UUMGControlOverlapGroup>(this, UUMGControlOverlapGroup::StaticClass());
+    UUMGControlOverlapGroup* lNewGroup = NewObject<UUMGControlOverlapGroup>(this, UUMGControlOverlapGroup::StaticClass());
     lNewGroup->Init(m_ControlOverlapType, Settings);
     m_GroupByTag.Add(TagId, lNewGroup);
     return lNewGroup->AddWidgetComponents(WidgetComponent);;

@@ -7,7 +7,6 @@
 #include "UMGControlOverlapGroup.generated.h"
 
 class UUMGControlOverlapItem;
-//enum class EControlOverlapType;
 
 UCLASS()
 class STRANGEOVERLAPMNGR_API UUMGControlOverlapGroup : public UObject
@@ -19,9 +18,13 @@ public:
 	void Update();
 
 	bool AddWidgetComponents(TArray<UWidgetComponent*>& WidgetComponents);
+
 	bool AddWidgetComponent(UWidgetComponent* WidgetComponent);
+
 	bool RemoveWidgetComponent(UWidgetComponent* WidgetComponent);
+
 	bool Destroy();
+
 	void Init(EControlOverlapType NewControlOverlapType, const FUMGOverlapControlGroupSettings& InSettings);
 
 protected:
@@ -36,22 +39,24 @@ private:
 
 	bool GetAndPrepareItemsForAllign(TArray<UUMGControlOverlapItem*>& ItemsToAllign, TArray<FVector2D>& Positions, TArray<UUMGControlOverlapItem*>& ItemsForCorrectPos);
 
-	FVector2D m_ViewPortSize{ 0.0f,0.0f };
+	bool ItemsItersect(const UUMGControlOverlapItem* ItemA, const UUMGControlOverlapItem* ItemB) const;
+
+	bool ItemsPositionsItersect(const FVector2D& ItemAPos, const UUMGControlOverlapItem* ItemA, const UUMGControlOverlapItem* ItemB) const;
+
+private:
 
 	UPROPERTY()
-	EControlOverlapType m_ControlOverlapType;
+	EControlOverlapType m_ControlOverlapType = EControlOverlapType::None;
 
 	UPROPERTY()
 	TArray<UUMGControlOverlapItem*> m_Items;
 
 	UPROPERTY()
-	int32 m_MaxItemsCount = 5;
-
-	UPROPERTY()
 	APlayerController* m_PlayerController = nullptr;
 
-	bool ItemsItersect(const UUMGControlOverlapItem* ItemA, const UUMGControlOverlapItem* ItemB) const;
-	bool ItemsPositionsItersect(const FVector2D& ItemAPos, const UUMGControlOverlapItem* ItemA, const UUMGControlOverlapItem* ItemB) const;
+	FVector2D m_ViewPortSize = FVector2D(0.0f,0.0f);
+
+	int32 m_MaxItemsCount = 5;
 };
 
 
@@ -62,14 +67,24 @@ class STRANGEOVERLAPMNGR_API UUMGControlOverlapGroupContainer : public UObject
 
 public:
 	
+	//Update control overlap groups
 	void Update();
 
+	//Remove control overlap group by tag id
 	bool RemoveGroup(const FString& TagId);
+
+	//Add control overlap group with tag id of widget components
 	bool CreateGroup(TArray<UWidgetComponent*>& WidgetCompoennts, const FString& TagId, const FUMGOverlapControlGroupSettings& Settings);
+
+	//Add widget component to control overlap group with tag id
 	bool AddWidgetComponentToGroup(UWidgetComponent* WidgetComponent, const FString& TagId);
+
+	//Remove widget component from control overlap group by tag id
 	bool RemoveWidgetComponentFromGroup(UWidgetComponent* WidgetComponent, const FString& TagId);
 
+	//Set control overlap type for this groups container
 	FORCEINLINE void SetControlOverlapType(EControlOverlapType NewControlOverlapType) { m_ControlOverlapType = NewControlOverlapType; }
+
 private:
 
 	UPROPERTY()

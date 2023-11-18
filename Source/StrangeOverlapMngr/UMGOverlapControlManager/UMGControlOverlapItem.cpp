@@ -77,9 +77,21 @@ FVector UUMGControlOverlapItem::GetWorldLocation() const
     return FVector();
 }
 
-void UUMGControlOverlapItem::Update(int32 NewIndex)
+void UUMGControlOverlapItem::SetIsGrouping(bool NewbIsGrouping)
 {
-    if (m_Index != NewIndex)
+    if (m_bIsGrouping != NewbIsGrouping)
+    {
+        m_bIsGrouping = NewbIsGrouping;
+        if (m_ControlledWidgetComponent->GetWidget()->GetClass()->ImplementsInterface(UUMGOverlapWidgetInterface::StaticClass()))
+        {
+            IUMGOverlapWidgetInterface::Execute_UpdateInGroup(m_ControlledWidgetComponent->GetWidget(), m_bIsGrouping);
+        }
+    }
+}
+
+void UUMGControlOverlapItem::UpdateIndex(int32 NewIndex)
+{
+    if (m_Index != NewIndex && m_bIsGrouping)
     {
         m_Index = NewIndex;
         if (m_ControlledWidgetComponent->GetWidget()->GetClass()->ImplementsInterface(UUMGOverlapWidgetInterface::StaticClass()))
