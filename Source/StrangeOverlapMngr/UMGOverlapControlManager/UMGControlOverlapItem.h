@@ -6,7 +6,7 @@
 class UUMGControlOverlapGroup;
 class UWidgetComponent;
 
-UCLASS()
+UCLASS(Blueprintable)
 class STRANGEOVERLAPMNGR_API UUMGControlOverlapItem : public UObject
 {
 	GENERATED_BODY()
@@ -25,6 +25,7 @@ public:
 
 	FORCEINLINE UWidgetComponent* GetWidgetComponent() const { return m_ControlledWidgetComponent; }
 
+
 	FVector GetWorldLocation() const;
 
 	FORCEINLINE bool IsGrouping() const { return m_bIsGrouping; }
@@ -42,5 +43,9 @@ private:
 	UPROPERTY()
 	UWidgetComponent* m_ControlledWidgetComponent = nullptr;
 
-	FVector m_StartedWorldPosition{0.0f,0.0f,0.0f};
+	FVector m_StartedWorldPosition = FVector(0.0f, 0.0f, 0.0f);
+	FVector m_StartedRelativeLocation = FVector(0.0f, 0.0f, 0.0f);
+
+	UPROPERTY()
+	AActor* m_Owner = nullptr;
 };

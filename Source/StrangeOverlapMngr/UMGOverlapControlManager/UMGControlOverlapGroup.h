@@ -15,20 +15,27 @@ class STRANGEOVERLAPMNGR_API UUMGControlOverlapGroup : public UObject
 
 public:
 
+	//Changes the state of widgets according to the type of overlay
 	void Update();
 
+	//Add widget components to a group
 	bool AddWidgetComponents(TArray<UWidgetComponent*>& WidgetComponents);
 
+	//Add widget component to a group
 	bool AddWidgetComponent(UWidgetComponent* WidgetComponent);
 
+	//Remove widget component from group
 	bool RemoveWidgetComponent(UWidgetComponent* WidgetComponent);
 
+	//Destroy group
 	bool Destroy();
 
+	//Initialize properties needed for work
 	void Init(EControlOverlapType NewControlOverlapType, const FUMGOverlapControlGroupSettings& InSettings);
 
 protected:
 
+	//Check condition for update items
 	bool NeedUpdate() const;
 
 private:

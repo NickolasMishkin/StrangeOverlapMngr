@@ -200,8 +200,6 @@ void UUMGControlOverlapGroup::Update()
         return;
     }
 
-
-
     TArray<FVector2D> lViewportPositions;
     TArray<UUMGControlOverlapItem*> lItemsForAllign;
     TArray<UUMGControlOverlapItem*> lItemsForCorectPos;
@@ -233,6 +231,16 @@ void UUMGControlOverlapGroup::Update()
         }
     }
 
+    if (lItemsForAllign.Num() <= 1)
+    {
+        for (auto It : m_Items)
+        {
+            It->SetIsGrouping(false);
+        }
+        
+        return;
+    }
+
     for (int32 i = 0; i < lViewportPositions.Num(); i++)
     {
         UUMGControlOverlapItem* lItemA = lItemsForAllign[i];
@@ -249,7 +257,7 @@ void UUMGControlOverlapGroup::Update()
         FVector2D lItemASize = lItemA->GetDesiredSize();
         FVector2D lItemAScreenPos = lViewportPositions[i];
         lItemA->UpdateIndex(i);
-        float XOffset = lItemAScreenPos.X + lItemASize.X;
+        float lXOffset = lItemAScreenPos.X + lItemASize.X;
         float YPos = lItemAScreenPos.Y;
         FSlateRect lItemARect(lItemAScreenPos.X, lItemAScreenPos.Y, lItemAScreenPos.X + lItemASize.X, lItemAScreenPos.Y + lItemASize.Y);
 
@@ -266,17 +274,18 @@ void UUMGControlOverlapGroup::Update()
 
             if (FSlateRect::DoRectanglesIntersect(lItemARect, lItemBRect))
             {
-                FVector2D lNewViewPortPosition = FVector2D(lItemAScreenPos.X + lItemASize.X /*- ItemBSize.X / 2.0f*/, YPos);
+                FVector2D lNewViewPortPosition = FVector2D(lXOffset, YPos);
                 if (lItemB->SetPositionInViewport(m_PlayerController, lNewViewPortPosition))
                 {
                     lItemB->SetIsGrouping(true);
                     lViewportPositions[j] = lNewViewPortPosition;
+                    lXOffset += lItemBSize.X;
                     continue;
                 }
-                XOffset += lItemBSize.X;
+                
                 
             }
-            else
+            else if (lItemB->IsGrouping())
             {
                 if (!IsItemOverlapedWithOther(lItemB, m_Items))
                 {
@@ -284,14 +293,15 @@ void UUMGControlOverlapGroup::Update()
                 }
                 else
                 {
-                    FVector2D lNewViewPortPosition = FVector2D(lItemAScreenPos.X + lItemASize.X , YPos);
+                    FVector2D lNewViewPortPosition = FVector2D(lItemAScreenPos.X + lItemASize.X, YPos);
                     if (lItemB->SetPositionInViewport(m_PlayerController, lNewViewPortPosition))
                     {
+                        lItemA->SetIsGrouping(true);
                         lItemB->SetIsGrouping(true);
                         lViewportPositions[j] = lNewViewPortPosition;
                         continue;
                     }
-                }
+                }               
             }
         }
     }
@@ -312,7 +322,7 @@ bool UUMGControlOverlapGroup::AddWidgetComponents(TArray<UWidgetComponent*>& Wid
 
 bool UUMGControlOverlapGroup::AddWidgetComponent(UWidgetComponent* WidgetComponent)
 {
-    if (!WidgetComponent || !WidgetComponent->GetWidget() || m_Items.Num() + 1 > m_MaxItemsCount)
+    if (!WidgetComponent || !WidgetComponent->GetWidget() || m_Items.Num() + 1 > m_MaxItemsCount || GetItemByWidgetComponent(WidgetComponent))
     {
         return false;
     }

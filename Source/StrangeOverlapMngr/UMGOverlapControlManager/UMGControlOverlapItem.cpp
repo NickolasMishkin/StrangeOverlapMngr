@@ -60,7 +60,12 @@ void UUMGControlOverlapItem::SetStartedLoaction()
 void UUMGControlOverlapItem::SetControlledWidgetComponent(UWidgetComponent* WidgetComponent)
 {
     m_ControlledWidgetComponent = WidgetComponent;
-    m_StartedWorldPosition = GetWorldLocation();
+    if (m_ControlledWidgetComponent)
+    {
+        m_StartedRelativeLocation = m_ControlledWidgetComponent->GetRelativeLocation();
+        m_StartedWorldPosition = GetWorldLocation();
+        m_Owner = m_ControlledWidgetComponent->GetOwner();
+    }
 }
 
 void UUMGControlOverlapItem::Destroy()
@@ -100,3 +105,13 @@ void UUMGControlOverlapItem::UpdateIndex(int32 NewIndex)
         }
     }
 }
+
+//void UUMGControlOverlapItem::Tick(float DeltaTime)
+//{
+//    
+    //Super::Tick(DeltaTime);
+    //if (m_Owner)
+    //{
+    //    m_StartedWorldPosition = m_Owner->GetActorLocation() + m_StartedRelativeLocation;
+    //}
+//}
