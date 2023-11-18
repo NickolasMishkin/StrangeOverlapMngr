@@ -50,7 +50,8 @@ private:
 	UPROPERTY()
 	APlayerController* m_PlayerController = nullptr;
 
-	bool ItemsItersect(UUMGControlOverlapItem* ItemA, UUMGControlOverlapItem* ItemB) const;
+	bool ItemsItersect(const UUMGControlOverlapItem* ItemA, const UUMGControlOverlapItem* ItemB) const;
+	bool ItemsPositionsItersect(const FVector2D& ItemAPos, const UUMGControlOverlapItem* ItemA, const UUMGControlOverlapItem* ItemB) const;
 };
 
 
