@@ -40,17 +40,15 @@ protected:
 
 private:
 
-	bool IsItemItersectOtherItems(const UUMGControlOverlapItem* CheckingItem, const TArray<UUMGControlOverlapItem*>& Items) const;
+	bool IsItemOverlapedWithOther(const UUMGControlOverlapItem* CheckingItem, const TArray<UUMGControlOverlapItem*>& Items) const;
 
-	UUMGControlOverlapItem* GetItemByWidgetComponent(const UWidgetComponent* WidgetComponent) const;
+	UUMGControlOverlapItem* GetItemByWidgetComponent(UWidgetComponent* WidgetComponent) const;
 
-	bool GetAndSortItemsForAllign(TArray<UUMGControlOverlapItem*>& OutItemsForAllign, TArray<FVector2D>& OutItemsPositionsInViewport);
+	bool GetAndPrepareItemsForAllign(TArray<UUMGControlOverlapItem*>& ItemsToAllign, TArray<FVector2D>& Positions, TArray<UUMGControlOverlapItem*>& ItemsForCorrectPos);
 
 	bool ItemsItersect(const UUMGControlOverlapItem* ItemA, const UUMGControlOverlapItem* ItemB) const;
 
-	bool IsItemStartedLocationIntersectOtherItem(const FVector2D& ItemAStartedViewPortPosition, const UUMGControlOverlapItem* ItemA, const UUMGControlOverlapItem* ItemB) const;
-
-	bool GetItemScreenNormalizedPositionByWorlLocation(const UUMGControlOverlapItem* Item, FVector2D& OutScreenPosition) const;
+	bool ItemsPositionsItersect(const FVector2D& ItemAPos, const UUMGControlOverlapItem* ItemA, const UUMGControlOverlapItem* ItemB) const;
 
 private:
 

@@ -10,7 +10,7 @@ bool UUMGControlOverlapItem::SetPositionInViewport(APlayerController* PlayerCont
 {
     if (PlayerController)
     {
-        FVector lNewWorldPosition, lWorldDirection = FVector(0.0f, 0.0f, 0.0f);
+        FVector lNewWorldPosition, lWorldDirection;
         if (PlayerController->DeprojectScreenPositionToWorld(Position.X, Position.Y, lNewWorldPosition, lWorldDirection))
         {
             SetWorldLocation(lNewWorldPosition);
@@ -53,6 +53,7 @@ void UUMGControlOverlapItem::SetStartedLoaction()
     {
         m_ControlledWidgetComponent->SetWorldLocation(m_StartedWorldPosition);
         SetIsGrouping(false);
+        GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("SetWorldLocation"), true, FVector2D(1.0f, 1.0f));
     }
 }
 
