@@ -15,24 +15,44 @@ public:
 
 	FVector2D CachedVieportPosition = FVector2D(0.0f, 0.0f);
 
-	bool SetPositionInViewport(APlayerController* PlayerController, const FVector2D& Position);
-	void SetWorldLocation(const FVector& NewPosition);
+	//Get widget viewport size
 	FVector2D GetDesiredSize() const;
-	bool GetPositionInViewport(APlayerController* PlayerController, FVector2D& ViewPortPosition) const;
-	void SetStartedLoaction();
-	void SetControlledWidgetComponent(UWidgetComponent* WidgetComponent);
-	void Destroy();
 
+	//Get widget position in viewport
+	bool GetPositionInViewport(APlayerController* PlayerController, FVector2D& ViewPortPosition) const;
+
+	//Get widget component
 	FORCEINLINE UWidgetComponent* GetWidgetComponent() const { return m_ControlledWidgetComponent; }
 
-
+	//Get widget component world location
 	FVector GetWorldLocation() const;
 
+	//Return if is item in the group
 	FORCEINLINE bool IsGrouping() const { return m_bIsGrouping; }
-	void SetIsGrouping(bool NewbIsGrouping);
+	
+	//Get widget component started world location
 	FORCEINLINE FVector GetStartedPosition() const { return m_StartedWorldPosition; }
 
+	//Try set widget component viewport position
+	bool SetPositionInViewport(APlayerController* PlayerController, const FVector2D& Position);
+
+	//Set widget compoentn world location
+	void SetWorldLocation(const FVector& NewPosition);
+	
+	//Set widget compoennt world location
+	void SetStartedLoaction();
+	
+	//Set widget compoent for control
+	void SetControlledWidgetComponent(UWidgetComponent* WidgetComponent);
+	
+	//Set item in the group
+	void SetIsGrouping(bool NewbIsGrouping);
+	
+	//Set item index in overlap group
 	void UpdateIndex(int32 NewIndex);
+	
+	//Destroy logic
+	void Destroy();
 
 private:
 
