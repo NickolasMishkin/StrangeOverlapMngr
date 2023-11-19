@@ -40,12 +40,16 @@ protected:
 
 private:
 
+	//Check if item overlaped with other items
 	bool IsItemOverlapedWithOtherItems(const UUMGControlOverlapItem* CheckingItem, const TArray<UUMGControlOverlapItem*>& Items) const;
 
+	//Find item by widget component, return nullptr if not found
 	UUMGControlOverlapItem* GetItemByWidgetComponent(UWidgetComponent* WidgetComponent) const;
 
+	//Prepare overlaped items which need allign and sort them, return sorted arrays of these items and them viewport positions 
 	bool GetAndSortItemsForAllign(TArray<UUMGControlOverlapItem*>& OutItemsToAllign, TArray<FVector2D>& OutItemsViewportPositions);
 
+	//Check if item in started location will overlaping with other item
 	bool IsItemStartedViewPortPositionItersectOtherItem(const FVector2D& ItemAPos, const UUMGControlOverlapItem* ItemA, const UUMGControlOverlapItem* ItemB) const;
 
 private:

@@ -62,9 +62,9 @@ void UUMGControlOverlapItem::SetControlledWidgetComponent(UWidgetComponent* Widg
     m_ControlledWidgetComponent = WidgetComponent;
     if (m_ControlledWidgetComponent)
     {
-        m_StartedRelativeLocation = m_ControlledWidgetComponent->GetRelativeLocation();
+        //m_StartedRelativeLocation = m_ControlledWidgetComponent->GetRelativeLocation();
         m_StartedWorldPosition = GetWorldLocation();
-        m_Owner = m_ControlledWidgetComponent->GetOwner();
+        //m_Owner = m_ControlledWidgetComponent->GetOwner();
     }
 }
 

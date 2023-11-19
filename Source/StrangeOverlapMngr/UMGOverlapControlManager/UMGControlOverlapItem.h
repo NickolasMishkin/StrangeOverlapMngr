@@ -13,7 +13,7 @@ class STRANGEOVERLAPMNGR_API UUMGControlOverlapItem : public UObject
 
 public:
 
-	FVector2D PosForSort{ 0.0f,0.0f };
+	FVector2D CachedVieportPosition = FVector2D(0.0f, 0.0f);
 
 	bool SetPositionInViewport(APlayerController* PlayerController, const FVector2D& Position);
 	void SetWorldLocation(const FVector& NewPosition);
@@ -36,16 +36,15 @@ public:
 
 private:
 
-	int32 m_Index = -1;
-
-	bool m_bIsGrouping = false;
-
 	UPROPERTY()
 	UWidgetComponent* m_ControlledWidgetComponent = nullptr;
 
+	int32 m_Index = -1;
+	bool m_bIsGrouping = false;
 	FVector m_StartedWorldPosition = FVector(0.0f, 0.0f, 0.0f);
-	FVector m_StartedRelativeLocation = FVector(0.0f, 0.0f, 0.0f);
 
-	UPROPERTY()
-	AActor* m_Owner = nullptr;
+	//FVector m_StartedRelativeLocation = FVector(0.0f, 0.0f, 0.0f);
+
+	/*UPROPERTY()
+	AActor* m_Owner = nullptr;*/
 };
