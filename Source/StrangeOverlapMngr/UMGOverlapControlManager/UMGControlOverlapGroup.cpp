@@ -135,14 +135,35 @@ void UUMGControlOverlapGroup::Update()
     
     GetAndSortItemsForAllign(lItemsForAllign, lViewportPositions);
 
-    if (lItemsForAllign.IsValidIndex(0))
+    for (int32 i = 0; i < lItemsForAllign.Num(); i++)
     {
-        if (!FVector::PointsAreNear(lItemsForAllign[0]->GetStartedPosition(), lItemsForAllign[0]->GetWorldLocation(), 5))
+        if (lItemsForAllign.IsValidIndex(i - 1))
         {
-            lItemsForAllign[0]->SetStartedLoaction();
-            GetAndSortItemsForAllign(lItemsForAllign, lViewportPositions);
+            if (!lItemsForAllign[i - 1]->IsGrouping() && lItemsForAllign[i]->IsGrouping())
+            {
+                if (!FVector::PointsAreNear(lItemsForAllign[i]->GetStartedPosition(), lItemsForAllign[i]->GetWorldLocation(), 5))
+                {
+                    lItemsForAllign[i]->SetStartedLoaction();
+                }
+            }
+        }
+        else if (i == 0)
+        {
+            if (!FVector::PointsAreNear(lItemsForAllign[0]->GetStartedPosition(), lItemsForAllign[0]->GetWorldLocation(), 5))
+            {
+                lItemsForAllign[0]->SetStartedLoaction();
+            }
         }
     }
+    GetAndSortItemsForAllign(lItemsForAllign, lViewportPositions);
+    //if (lItemsForAllign.IsValidIndex(0))
+    //{
+    //    if (!FVector::PointsAreNear(lItemsForAllign[0]->GetStartedPosition(), lItemsForAllign[0]->GetWorldLocation(), 5))
+    //    {
+    //        lItemsForAllign[0]->SetStartedLoaction();
+    //        GetAndSortItemsForAllign(lItemsForAllign, lViewportPositions);
+    //    }
+    //}
 
     if (lItemsForAllign.Num() <= 1)
     {
@@ -162,11 +183,6 @@ void UUMGControlOverlapGroup::Update()
             continue;
         }
         
-        if (i == 0)
-        {
-            lItemA->SetIsGrouping(true);
-        }
-
         FVector2D lItemASize = lItemA->GetDesiredSize();
         FVector2D lItemAScreenPos = lViewportPositions[i];
         lItemA->UpdateIndex(i);
@@ -208,7 +224,7 @@ void UUMGControlOverlapGroup::Update()
                     FVector2D lNewViewPortPosition = FVector2D(lXOffset, lYOffset);
                     if (lItemB->SetPositionInViewport(m_PlayerController, lNewViewPortPosition))
                     {
-                        //lItemA->SetIsGrouping(true);
+                        lItemA->SetIsGrouping(true);
                         lItemB->SetIsGrouping(true);
                         lViewportPositions[j] = lNewViewPortPosition;
                         lXOffset += lItemBSize.X;
