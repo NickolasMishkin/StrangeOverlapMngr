@@ -40,15 +40,13 @@ protected:
 
 private:
 
-	bool IsItemOverlapedWithOther(const UUMGControlOverlapItem* CheckingItem, const TArray<UUMGControlOverlapItem*>& Items) const;
+	bool IsItemOverlapedWithOtherItems(const UUMGControlOverlapItem* CheckingItem, const TArray<UUMGControlOverlapItem*>& Items) const;
 
 	UUMGControlOverlapItem* GetItemByWidgetComponent(UWidgetComponent* WidgetComponent) const;
 
-	bool GetAndPrepareItemsForAllign(TArray<UUMGControlOverlapItem*>& ItemsToAllign, TArray<FVector2D>& Positions, TArray<UUMGControlOverlapItem*>& ItemsForCorrectPos);
+	bool GetAndSortItemsForAllign(TArray<UUMGControlOverlapItem*>& OutItemsToAllign, TArray<FVector2D>& OutItemsViewportPositions);
 
-	bool ItemsItersect(const UUMGControlOverlapItem* ItemA, const UUMGControlOverlapItem* ItemB) const;
-
-	bool ItemsPositionsItersect(const FVector2D& ItemAPos, const UUMGControlOverlapItem* ItemA, const UUMGControlOverlapItem* ItemB) const;
+	bool IsItemStartedViewPortPositionItersectOtherItem(const FVector2D& ItemAPos, const UUMGControlOverlapItem* ItemA, const UUMGControlOverlapItem* ItemB) const;
 
 private:
 
